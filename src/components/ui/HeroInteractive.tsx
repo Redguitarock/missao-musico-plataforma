@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
+import { motion } from 'framer-motion'
 
 export default function HeroInteractive() {
   const containerRef = useRef<HTMLElement>(null)
@@ -203,10 +204,13 @@ export default function HeroInteractive() {
     }
   }, [])
 
-  // Parallax Values
-  const zoomScaleImage = Math.max(0.7, 1 - scrollY * 0.0005)
-  const translateYImage = scrollY * 0.2
+  // Parallax Values (Zoom in instead of zoom out)
+  const zoomScaleImage = 1 + scrollY * 0.0008
+  const translateYImage = scrollY * 0.15
   const translateYText = scrollY * 0.1
+  
+  // Mobile dynamic opacity (starts low, increases as scroll increases)
+  const mobileOpacityValue = Math.min(0.08 + scrollY * 0.002, 0.6)
 
   return (
     <header 
@@ -244,18 +248,40 @@ export default function HeroInteractive() {
             </div>
           </div>
 
-          {/* Camada 3: Imagem da Mente mesclada + Animação de Zoom e Parallax (Desativado no Mobile para não quebrar leitura) */}
-          <div className="hidden lg:flex relative h-[400px] md:h-[600px] items-center justify-center pointer-events-none mt-10 md:mt-0">
+          {/* Camada 3: Imagem da Mente mesclada (Desktop) */}
+          <div className="hidden lg:flex relative h-[400px] md:h-[600px] items-center justify-center pointer-events-none mt-10 md:mt-0 z-10">
              <div 
                 className="w-full h-full absolute inset-0 transition-transform duration-75 ease-out flex items-center justify-center"
                 style={{ transform: `scale(${zoomScaleImage}) translateY(${translateYImage}px)` }}
              >
-                <img
-                  alt="Mente Cérebro Conexões Música"
-                  // o mix-blend-screen + drop-shadow dá a sensação de png que emana a luz das linhas
-                  className="max-w-[120%] h-auto md:w-full md:h-full object-contain mix-blend-screen drop-shadow-[0_0_50px_rgba(38,166,154,0.15)] opacity-90"
-                  src="/Hero%20imagem.png"
-                />
+                {/* Efeito VIVO (Onda/Oceano) da figura parada */}
+                <motion.div animate={{ y: [0, -15, 0], scale: [1, 1.015, 1] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}>
+                  <img
+                    alt="Mente Cérebro Conexões Música"
+                    className="max-w-[120%] h-auto md:w-full md:h-full object-contain mix-blend-screen drop-shadow-[0_0_50px_rgba(38,166,154,0.15)] opacity-90"
+                    src="/Hero%20imagem.png"
+                  />
+                </motion.div>
+             </div>
+          </div>
+          
+          {/* Camada 3: Imagem da Mente (Mobile Background) */}
+          <div 
+            className="lg:hidden absolute inset-0 z-0 flex items-start justify-center pointer-events-none overflow-hidden transition-opacity duration-75"
+            style={{ opacity: mobileOpacityValue }}
+          >
+             <div 
+                className="w-full h-full absolute inset-0 transition-transform duration-75 ease-out flex items-center justify-center -mt-10"
+                style={{ transform: `scale(${zoomScaleImage}) translateY(${translateYImage}px)` }}
+             >
+                {/* Efeito VIVO */}
+                <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}>
+                  <img
+                    alt="Mente Cérebro Conexões Música"
+                    className="max-w-[160%] w-[160%] h-auto object-contain mix-blend-screen drop-shadow-[0_0_50px_rgba(38,166,154,0.1)] opacity-70"
+                    src="/Hero%20imagem.png"
+                  />
+                </motion.div>
              </div>
           </div>
           

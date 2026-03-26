@@ -46,13 +46,36 @@ const JORNADA_STEPS = [
 export default function LandingPage() {
   const [activeStep, setActiveStep] = useState(0);
   const prevStepRef = useRef(0);
+  const carouselRef = useRef<HTMLDivElement>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   
   useEffect(() => {
     prevStepRef.current = activeStep;
+    
+    // Auto-scroll on mobile
+    if (carouselRef.current && typeof window !== 'undefined' && window.innerWidth < 768) {
+      const activeCard = carouselRef.current.children[activeStep] as HTMLElement;
+      if (activeCard) {
+        carouselRef.current.scrollTo({
+          left: activeCard.offsetLeft - 24,
+          behavior: 'smooth'
+        });
+      }
+    }
   }, [activeStep]);
   
   const prevActiveStep = prevStepRef.current;
+
+  const mobilePositions = [
+    { left: 25, top: 4 },
+    { left: 75, top: 4 },
+    { left: 25, top: 38 },
+    { left: 75, top: 38 },
+    { left: 50, top: 72 },
+  ];
+  const prevMobPos = mobilePositions[prevActiveStep] || mobilePositions[0];
+  const currMobPos = mobilePositions[activeStep] || mobilePositions[0];
+  const mobPeakTop = Math.min(prevMobPos.top, currMobPos.top) - 12;
 
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
@@ -74,8 +97,8 @@ export default function LandingPage() {
       <nav className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl shadow-[0_0_15px_rgba(0,0,0,0.5)] font-manrope antialiased tracking-tight">
         <div className="flex justify-between items-center max-w-7xl mx-auto px-6 h-20 relative z-50">
           <Link href="/" className="flex items-center gap-2">
-            <div className="bg-surface-container px-3 py-1.5 rounded-lg shadow-[0_0_15px_rgba(129,243,229,0.15)] flex items-center">
-              <Image src="/logo.png" alt="Missão Músico" width={160} height={40} className="h-6 md:h-8 w-auto" />
+            <div className="bg-surface-container px-3 py-1.5 rounded-lg flex items-center">
+              <Image src="/logo.png" alt="Missão Músico" width={160} height={40} className="h-8 md:h-10 w-auto" unoptimized={true} />
             </div>
           </Link>
           <div className="hidden md:flex items-center space-x-8">
@@ -309,23 +332,27 @@ export default function LandingPage() {
                ))}
             </div>
 
-            {/* Mobile Bouncing Dot & Trail */}
-            <div className="block md:hidden absolute left-0 top-6 h-full pointer-events-none z-30">
+            {/* Mobile 2D Elastic Bouncing Dot & Trail */}
+            <div className="block md:hidden absolute top-[-10px] left-0 w-full h-full pointer-events-none z-30">
                {[0, 0.05, 0.1].map((delay, index) => (
                  <motion.div
                    key={`mob-trail-${index}`}
-                   className="absolute left-[20px] w-4 h-4 mt-[-8px]"
-                   animate={{ top: `${(activeStep * 20) + 10}%` }}
-                   transition={{ duration: 0.8, ease: "easeInOut", delay }}
+                   className="absolute w-4 h-4 mt-[-10px] ml-[-10px]"
+                   animate={{ 
+                     left: `${currMobPos.left}%`,
+                     top: [`${prevMobPos.top}%`, `${mobPeakTop}%`, `${currMobPos.top}%`]
+                   }}
+                   transition={{ 
+                     left: { duration: 0.8, ease: "easeInOut", delay },
+                     top: { duration: 0.8, ease: ["easeOut", "easeIn"], times: [0, 0.5, 1], delay } 
+                   }}
                  >
                     <motion.div
-                       animate={{ x: [0, -50, 0] }}
-                       transition={{ duration: 0.8, ease: ["easeOut", "easeIn"], times: [0, 0.5, 1], delay }}
                        className="w-full h-full bg-[#81f3e5] rounded-full relative flex items-center justify-center"
                        style={{ 
                          opacity: 1 - index * 0.4, 
                          scale: 1 - index * 0.3,
-                         boxShadow: index === 0 ? "0 0 30px 6px rgba(129,243,229,1)" : "none" 
+                         boxShadow: index === 0 ? "0 0 20px 4px rgba(129,243,229,1)" : "none" 
                        }}
                     >
                       {activeStep === 4 && index === 0 ? (
@@ -335,13 +362,13 @@ export default function LandingPage() {
                                key={`fw-mob-${i}`}
                                initial={{ scale: 0, x: 0, y: 0, opacity: 1 }}
                                animate={{ 
-                                 scale: [0, 1.5, 0], 
+                                 scale: [0, 1.2, 0], 
                                  opacity: [1, 1, 0], 
-                                 x: [0, Math.cos((i * 60) * Math.PI / 180) * 50],
-                                 y: [0, Math.sin((i * 60) * Math.PI / 180) * 50]
+                                 x: [0, Math.cos((i * 60) * Math.PI / 180) * 35],
+                                 y: [0, Math.sin((i * 60) * Math.PI / 180) * 35]
                                }}
                                transition={{ duration: 0.8, delay: 0.75, ease: "easeOut" }}
-                               className={`absolute top-1/2 left-1/2 w-2 h-2 rounded-full -mt-1 -ml-1 ${['bg-[#81f3e5]','bg-[#f38181]','bg-[#f3d981]','bg-[#c481f3]','bg-white','bg-[#81f3a5]'][i]}`}
+                               className={`absolute top-1/2 left-1/2 w-1.5 h-1.5 rounded-full -mt-[3px] -ml-[3px] ${['bg-[#81f3e5]','bg-[#f38181]','bg-[#f3d981]','bg-[#c481f3]','bg-white','bg-[#81f3a5]'][i]}`}
                              />
                            ))}
                         </div>
@@ -349,8 +376,8 @@ export default function LandingPage() {
                         index === 0 && (
                           <motion.div
                              key={`mob-splash-${activeStep}`}
-                             initial={{ scale: 0.8, opacity: 1, borderWidth: "4px" }}
-                             animate={{ scale: [0.8, 4], opacity: [1, 0], borderWidth: ["4px", "0px"] }}
+                             initial={{ scale: 0.8, opacity: 1, borderWidth: "3px" }}
+                             animate={{ scale: [0.8, 3.5], opacity: [1, 0], borderWidth: ["3px", "0px"] }}
                              transition={{ duration: 0.6, delay: 0.75, ease: "easeOut" }}
                              className="absolute w-full h-full rounded-full border-[#81f3e5]"
                           />
@@ -361,17 +388,22 @@ export default function LandingPage() {
                ))}
             </div>
             
-            <div className={`grid grid-cols-1 md:grid-cols-5 gap-4 md:gap-6 relative z-10 pl-10 md:pl-0`}>
+            {/* Grid 2x2+1 Mobile / Grid Desktop */}
+            <div 
+              ref={carouselRef}
+              className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-6 relative z-10 px-4 md:px-0 mx-auto max-w-full pb-8 md:pb-0"
+            >
               {JORNADA_STEPS.map((step, idx) => {
                 const isActive = activeStep === idx;
                 const isSuccessCard = idx === 4;
+                const isSuccessMobile = isSuccessCard ? "col-span-2 mx-6 md:mx-0 mt-4 md:mt-0" : "col-span-1";
                 return (
                   <motion.div 
                     key={idx}
-                    className={`bg-gradient-to-br p-5 md:p-8 rounded-2xl flex flex-col justify-between h-auto min-h-[14rem] md:min-h-0 md:h-64 border transition-all duration-500 backdrop-blur-md cursor-pointer overflow-hidden relative
+                    className={`${isSuccessMobile} md:col-span-1 bg-gradient-to-br p-4 md:p-8 rounded-xl md:rounded-2xl flex flex-col justify-between min-h-[140px] md:h-64 border transition-all duration-500 backdrop-blur-md cursor-pointer overflow-hidden relative
                       ${isActive 
                         ? (isSuccessCard 
-                           ? 'from-[#005049]/80 to-[#0a1f29] border-[#81f3e5] shadow-[0_0_40px_rgba(129,243,229,0.3)] scale-105 md:scale-110 z-20' 
+                           ? 'from-[#005049]/80 to-[#0a1f29] border-[#81f3e5] shadow-[0_0_40px_rgba(129,243,229,0.3)] scale-[1.05] md:scale-110 z-20' 
                            : 'from-[#1b4353] to-[#0a1f29] border-[#81f3e5]/50 shadow-[0_0_30px_rgba(129,243,229,0.15)] scale-[1.02] md:scale-105 z-20'
                           )
                         : 'from-[#1b4353]/90 to-[#0a1f29]/90 border-outline-variant/30 opacity-80 scale-100 hover:opacity-100 z-10'
@@ -388,19 +420,19 @@ export default function LandingPage() {
                        />
                     )}
                     
-                    <div className="flex justify-between items-start relative z-10 mb-4 md:mb-0">
-                      <span className={`text-4xl md:text-5xl font-headline font-extrabold transition-colors duration-500 ${isActive ? 'text-[#81f3e5]' : 'text-white/10'}`}>
+                    <div className="flex justify-between items-start relative z-10 mb-2 md:mb-0">
+                      <span className={`text-2xl md:text-5xl font-headline font-extrabold transition-colors duration-500 ${isActive ? 'text-[#81f3e5]' : 'text-white/10'}`}>
                         {step.id}
                       </span>
-                      <span className={`material-symbols-outlined transition-all duration-500 ${isActive ? 'text-[#81f3e5] opacity-100 scale-110 md:scale-125' : 'text-outline-variant opacity-50'}`}>
+                      <span className={`material-symbols-outlined transition-all duration-500 ${isActive ? 'text-[#81f3e5] opacity-100 scale-90 md:scale-125' : 'text-outline-variant opacity-50 scale-75 md:scale-100'}`}>
                         {step.icon}
                       </span>
                     </div>
                     <div className="relative z-10">
-                      <h4 className={`text-base md:text-lg font-headline font-bold mb-2 transition-colors duration-500 ${isActive ? (isSuccessCard ? 'text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]' : 'text-[#81f3e5]') : 'text-white'}`}>
+                      <h4 className={`text-[13px] md:text-lg leading-tight font-headline font-bold mb-1 md:mb-2 transition-colors duration-500 ${isActive ? (isSuccessCard ? 'text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]' : 'text-[#81f3e5]') : 'text-white'}`}>
                         {step.title}
                       </h4>
-                      <p className="text-on-surface-variant text-xs md:text-sm">{step.desc}</p>
+                      <p className="text-on-surface-variant text-[10px] md:text-sm leading-tight">{step.desc}</p>
                     </div>
                   </motion.div>
                 );

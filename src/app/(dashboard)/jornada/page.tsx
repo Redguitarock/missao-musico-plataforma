@@ -104,15 +104,16 @@ export default function JornadaPage() {
                 </p>
 
                 {modulo.status === 'active' && (
-                  <button className="bg-[#006a62] text-white px-6 py-2.5 rounded-full text-sm font-bold flex items-center justify-center gap-2 hover:bg-[#00504a] transition-colors w-max">
+                  <Link href={`/jornada/${modulo.id}`} className="bg-[#006a62] text-white px-6 py-2.5 rounded-full text-sm font-bold flex items-center justify-center gap-2 hover:bg-[#00504a] transition-colors w-max">
                     Continuar Estudos
                     <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
-                  </button>
+                  </Link>
                 )}
                 {modulo.status === 'completed' && (
-                  <button className="text-[#006a62] border border-[#006a62] px-6 py-2 rounded-full text-sm font-bold hover:bg-[#006a62]/10 transition-colors w-max">
+                  <Link href={`/jornada/${modulo.id}`} className="text-[#006a62] border border-[#006a62] px-6 py-2 flex items-center gap-2 rounded-full text-sm font-bold hover:bg-[#006a62]/10 transition-colors w-max">
                     Revisar Conteúdo
-                  </button>
+                    <span className="material-symbols-outlined text-[18px]">menu_book</span>
+                  </Link>
                 )}
               </div>
             </div>
