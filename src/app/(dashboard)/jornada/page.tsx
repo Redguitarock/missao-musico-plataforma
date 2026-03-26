@@ -3,30 +3,31 @@ import Link from "next/link"
 const JOURNEY_MODULES = [
   {
     id: 1,
-    title: 'A Raiz do Ruído Músical',
+    title: 'Introdução à Psicanálise para Músicos',
     description: 'Diagnóstico terapêutico inicial para reconhecer suas travas de desempenho.',
-    status: 'completed',
+    status: 'active',
+    isMandatory: true,
     image: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=1470&auto=format&fit=crop'
   },
   {
     id: 2,
     title: 'Ego e Instrumento: A linha Tênue',
     description: 'Separando sua identidade pessoal do seu resultado técnico para recuperar a essência.',
-    status: 'completed',
+    status: 'locked',
     image: 'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?q=80&w=1470&auto=format&fit=crop'
   },
   {
     id: 3,
     title: 'Neuroplasticidade na Prática',
     description: 'Recodificando os caminhos neurais para focar no fluxo, não no erro.',
-    status: 'completed',
+    status: 'locked',
     image: 'https://images.unsplash.com/photo-1516280440502-86119b48c2e6?q=80&w=1470&auto=format&fit=crop'
   },
   {
     id: 4,
     title: 'O Silêncio entre as Notas',
     description: 'Explore como as pausas e o silêncio intencional regulam o sistema nervoso e aprofundam a percepção musical.',
-    status: 'active',
+    status: 'locked',
     image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCFq8eYx2NCZHaw721M0hcpnOP6YQUs3WAUQEb0jFA07tIXGqPRBE0_iXt8k2t9KhErgr2sS3VwAEYxBUrvFYXQ_X1RUwJk283fPR1053ZGvf0h6aFEyzvfPz-5ZPIv9NJhrSJmzmY-6aebVesy48j1HcSlwJ7iLvU82bNPWs1KZLZ3xjUb_tYsg7-cudpAGl5stTeDPlqUVJh_YDLqgJUDLDv4MxALLu9AshQOsa4I7INkSo59mJiOoUXyQ25X7RCKhxxKk9od_zs'
   },
   {
@@ -51,7 +52,7 @@ export default function JornadaPage() {
       <div className="relative max-w-4xl">
         {/* Vertical Timeline Line */}
         <div className="absolute left-6 md:left-[3.25rem] top-8 bottom-8 w-1 bg-surface-container-high rounded-full overflow-hidden">
-          <div className="w-full bg-[#006a62] h-[75%] shadow-[0_0_15px_rgba(0,106,98,0.5)]"></div>
+          <div className="w-full bg-[#006a62] h-[25%] shadow-[0_0_15px_rgba(0,106,98,0.5)]"></div>
         </div>
 
         <div className="space-y-8 md:space-y-12 relative">
@@ -85,13 +86,22 @@ export default function JornadaPage() {
                       : 'border-slate-200/50 hover:border-[#006a62]/30 hover:shadow-md'
                   }
               `}>
-                <div className="flex justify-between items-start mb-4">
-                  <span className={`px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full 
-                    ${modulo.status === 'active' ? 'bg-[#006a62] text-white' : 
-                      modulo.status === 'completed' ? 'bg-surface-container text-on-surface-variant' : 
-                      'bg-slate-100 text-slate-400'}`}>
-                    Modulo 0{modulo.id}
-                  </span>
+                <div className="flex justify-between items-start mb-4 gap-2 flex-wrap">
+                  <div className="flex items-center gap-2">
+                    <span className={`px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full 
+                      ${modulo.status === 'active' ? 'bg-[#006a62] text-white' : 
+                        modulo.status === 'completed' ? 'bg-surface-container text-on-surface-variant' : 
+                        'bg-slate-100/10 text-slate-400'}`}>
+                      Modulo 0{modulo.id}
+                    </span>
+                    {modulo.isMandatory && (
+                      <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full bg-red-500/20 text-red-300 border border-red-500/30 flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[12px]">priority</span>
+                        Obrigatório
+                      </span>
+                    )}
+                  </div>
+
                   {modulo.status === 'completed' && <span className="material-symbols-outlined text-[#006a62]" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>}
                   {modulo.status === 'locked' && <span className="material-symbols-outlined text-slate-400">lock</span>}
                 </div>
@@ -114,6 +124,12 @@ export default function JornadaPage() {
                     Revisar Conteúdo
                     <span className="material-symbols-outlined text-[18px]">menu_book</span>
                   </Link>
+                )}
+                {modulo.status === 'locked' && (
+                  <button disabled className="text-slate-500 bg-surface border border-slate-700 px-6 py-2.5 rounded-full text-sm font-bold flex items-center justify-center gap-2 cursor-not-allowed w-max opacity-80">
+                    <span className="material-symbols-outlined text-[18px]">lock</span>
+                    Desbloqueie o anterior
+                  </button>
                 )}
               </div>
             </div>

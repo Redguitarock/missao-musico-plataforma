@@ -238,7 +238,7 @@ export default function LandingPage() {
               <img
                 alt="Deep focus and mental clarity"
                 className="relative rounded-[2rem] shadow-2xl opacity-90 transition-transform duration-700 group-hover:scale-[1.02]"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxYaYCZdDVEfqUiYLkUPC4Wq-psB4nXCTCRNybp9EOkzZ_3x8SMWoKwxIv29L2bQ18Sql3psoHSO2aw7T5HRTSYb3YtOUUNee0ifPHBX58XLa_SVlxyLLCdv_LlzHbDrIWpjAfnh_4X6mqkiqyNG_oU4eQsrv5Dinp-tCd-a0sO3pzJgXJJEfNyBUSdEwiwU4z4BTSKIYM-DOMiO1EBtUfkhnd7GauRyd-1WO4nYFfMytvONFKDvnPRLSP2pyfvPSEPGPnSeablD4"
+                src="/imagem%20se%C3%A7%C3%A3o%20O%20Santu%C3%A1rio%20Digital.png"
               />
             </motion.div>
             <motion.div variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }} className="order-1 lg:order-2 space-y-10">
@@ -466,7 +466,7 @@ export default function LandingPage() {
               <img
                 alt="Rodrigo Moreira"
                 className="absolute inset-0 w-full h-full object-cover"
-                src="/Foto%20Rodrigo%20Moreira.png"
+                src="/Rodrigo%20Moreira%20-%20psicanalista.png"
               />
             </div>
           </motion.div>

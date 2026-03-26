@@ -11,6 +11,7 @@ import { Menu, X } from 'lucide-react'
 const MENU_ITEMS = [
   { name: 'Dashboard', href: '/home', icon: 'dashboard' },
   { name: 'Jornada', href: '/jornada', icon: 'school' },
+  { name: 'Diário', href: '/diario', icon: 'menu_book' },
   { name: 'Progresso', href: '/progresso', icon: 'psychology' },
   { name: 'Conteúdos', href: '/conteudos', icon: 'library_music' },
   { name: 'Perfil', href: '/perfil', icon: 'person' },
