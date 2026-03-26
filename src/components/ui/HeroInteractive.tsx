@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
 
 export default function HeroInteractive() {
   const containerRef = useRef<HTMLElement>(null)
@@ -73,7 +73,7 @@ export default function HeroInteractive() {
           ctx.fill()
         } else {
           ctx.font = `bold ${this.size * 6}px Arial`
-          ctx.globalAlpha = 0.85
+          ctx.globalAlpha = 0.70
           ctx.fillText(this.char, this.x, this.y)
           ctx.globalAlpha = 1
         }
@@ -136,8 +136,8 @@ export default function HeroInteractive() {
           if (distance < (canvas.width / 5) * (canvas.height / 5)) {
             opacityValue = 1 - (distance / 40000)
             if (!ctx) continue
-            // Linhas constantes e mais visíveis perto
-            ctx.strokeStyle = `rgba(129, 243, 229, ${opacityValue * 0.45})`
+            // Linhas constantes e levemente mais sutis que antes
+            ctx.strokeStyle = `rgba(129, 243, 229, ${opacityValue * 0.35})`
             ctx.lineWidth = 1
             ctx.beginPath()
             ctx.moveTo(particles[a].x, particles[a].y)
@@ -211,9 +211,26 @@ export default function HeroInteractive() {
   // Mobile dynamic opacity (starts low, increases as scroll increases)
   const mobileOpacityValue = Math.min(0.08 + scrollY * 0.002, 0.6)
 
+  // 3D Parallax Perspective state
+  const mouseX = useMotionValue(0)
+  const mouseY = useMotionValue(0)
+  const springX = useSpring(mouseX, { stiffness: 70, damping: 25 })
+  const springY = useSpring(mouseY, { stiffness: 70, damping: 25 })
+  const rotateX = useTransform(springY, [-1, 1], [8, -8])
+  const rotateY = useTransform(springX, [-1, 1], [-8, 8])
+
+  const handleMouseMovePerspective = (e: React.MouseEvent) => {
+    // Normalize coordinates from -1 to 1 based on screen size
+    const xNormalized = (e.clientX / (typeof window !== 'undefined' ? window.innerWidth : 1000)) * 2 - 1
+    const yNormalized = (e.clientY / (typeof window !== 'undefined' ? window.innerHeight : 1000)) * 2 - 1
+    mouseX.set(xNormalized)
+    mouseY.set(yNormalized)
+  }
+
   return (
     <header 
       ref={containerRef}
+      onMouseMove={handleMouseMovePerspective}
       className="relative pt-32 pb-20 md:pt-48 md:pb-32 min-h-screen md:min-h-[90vh] flex items-center overflow-hidden bg-[#00151d]"
     >
       {/* Camada 0: Fundo Escuro com Degradê caindo para a escuridão absoluta da "surface" */}
@@ -250,11 +267,19 @@ export default function HeroInteractive() {
           {/* Camada 3: Imagem da Mente mesclada (Desktop) */}
           <div className="hidden lg:flex relative h-[400px] md:h-[600px] items-center justify-center pointer-events-none mt-10 md:mt-0 z-10">
              <div 
-                className="w-full h-full absolute inset-0 transition-transform duration-75 ease-out flex items-center justify-center"
-                style={{ transform: `scale(${zoomScaleImage}) translateY(${translateYImage}px)` }}
+                className="w-full h-full absolute inset-0 transition-transform duration-75 flex items-center justify-center pointer-events-none"
+                style={{ 
+                  transform: `scale(${zoomScaleImage}) translateY(${translateYImage}px)`,
+                  perspective: 1000 
+                }}
              >
-                {/* Efeito VIVO (Onda/Oceano) da figura parada */}
-                <motion.div animate={{ y: [0, -15, 0], scale: [1, 1.015, 1] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}>
+                {/* Efeito VIVO (Onda/Oceano) + 3D Mouse Parallax */}
+                <motion.div 
+                  animate={{ y: [0, -15, 0], scale: [1, 1.015, 1] }} 
+                  transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                  style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+                  className="will-change-transform"
+                >
                   <img
                     alt="Mente Cérebro Conexões Música"
                     className="max-w-[120%] h-auto md:w-full md:h-full object-contain mix-blend-screen drop-shadow-[0_0_50px_rgba(38,166,154,0.15)] opacity-90"
