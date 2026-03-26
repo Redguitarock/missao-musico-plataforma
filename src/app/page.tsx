@@ -46,6 +46,7 @@ const JORNADA_STEPS = [
 export default function LandingPage() {
   const [activeStep, setActiveStep] = useState(0);
   const prevStepRef = useRef(0);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   
   useEffect(() => {
     prevStepRef.current = activeStep;
@@ -71,9 +72,11 @@ export default function LandingPage() {
     <div className="antialiased selection:bg-secondary-container selection:text-on-secondary-container">
       {/* TopNavBar */}
       <nav className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl shadow-[0_0_15px_rgba(0,0,0,0.5)] font-manrope antialiased tracking-tight">
-        <div className="flex justify-between items-center max-w-7xl mx-auto px-6 h-20">
+        <div className="flex justify-between items-center max-w-7xl mx-auto px-6 h-20 relative z-50">
           <Link href="/" className="flex items-center gap-2">
-            <Image src="/logo.png" alt="Missão Músico" width={160} height={40} className="h-8 w-auto brightness-0 invert" />
+            <div className="bg-surface-container px-3 py-1.5 rounded-lg shadow-[0_0_15px_rgba(129,243,229,0.15)] flex items-center">
+              <Image src="/logo.png" alt="Missão Músico" width={160} height={40} className="h-6 md:h-8 w-auto" />
+            </div>
           </Link>
           <div className="hidden md:flex items-center space-x-8">
             <Link href="/" className="text-secondary font-semibold border-b-2 border-secondary pb-1">
@@ -86,16 +89,37 @@ export default function LandingPage() {
               Planos
             </Link>
           </div>
-          <div className="flex items-center gap-4">
-            <Link href="/login" className="text-on-surface-variant hover:text-white px-4 py-2 transition-all active:scale-95">
+          <div className="flex items-center gap-2 md:gap-4">
+            <Link href="/login" className="hidden sm:block text-on-surface-variant hover:text-white px-4 py-2 transition-all active:scale-95">
               Entrar
             </Link>
-            <Link href="/cadastro" className="bg-gradient-to-br from-primary-container to-secondary text-white px-6 py-2.5 rounded-xl font-semibold transition-all active:scale-95 shadow-lg shadow-secondary/20">
+            <Link href="/cadastro" className="bg-gradient-to-br from-primary-container to-secondary text-white px-4 py-2 md:px-6 md:py-2.5 rounded-xl font-semibold text-sm md:text-base transition-all active:scale-95 shadow-lg shadow-secondary/20">
               Criar Conta
             </Link>
+            <button className="md:hidden ml-2 p-2 flex items-center" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              <span className="material-symbols-outlined text-white text-2xl">{isMenuOpen ? 'close' : 'menu'}</span>
+            </button>
           </div>
         </div>
-        <div className="bg-outline-variant h-[1px] w-full absolute bottom-0"></div>
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }} 
+              animate={{ opacity: 1, height: "auto" }} 
+              exit={{ opacity: 0, height: 0 }} 
+              className="md:hidden bg-surface-container-high border-b border-outline-variant/10 overflow-hidden flex flex-col z-40 absolute w-full left-0 top-20 shadow-2xl"
+            >
+              <div className="flex flex-col px-6 py-6 gap-6">
+                <Link href="/" onClick={() => setIsMenuOpen(false)} className="text-white font-semibold">Início</Link>
+                <Link href="#metodo" onClick={() => setIsMenuOpen(false)} className="text-on-surface-variant hover:text-white">Método</Link>
+                <Link href="#planos" onClick={() => setIsMenuOpen(false)} className="text-on-surface-variant hover:text-white">Planos</Link>
+                <div className="w-full h-[1px] bg-white/5 my-2"></div>
+                <Link href="/login" onClick={() => setIsMenuOpen(false)} className="text-on-surface-variant hover:text-white font-medium">Entrar</Link>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        <div className="bg-outline-variant h-[1px] w-full absolute bottom-0 z-50 pointer-events-none"></div>
       </nav>
 
       <HeroInteractive />
@@ -111,7 +135,7 @@ export default function LandingPage() {
             <h2 className="text-sm uppercase tracking-[0.2em] text-on-tertiary-container font-bold mb-4">
               A Luta Interna
             </h2>
-            <p className="text-4xl md:text-5xl font-headline font-bold text-white tracking-tighter leading-tight">
+            <p className="text-3xl md:text-5xl font-headline font-bold text-white tracking-tighter leading-tight">
               A música nasce na mente, mas é nela que os maiores obstáculos residem.
             </p>
           </motion.div>
@@ -152,7 +176,7 @@ export default function LandingPage() {
           className="max-w-7xl mx-auto px-6 flex flex-col items-center text-center"
         >
           <div className="max-w-3xl space-y-8">
-            <h2 className="text-5xl md:text-6xl font-bold text-[#81f3e5] tracking-wide italic font-cormorant leading-tight drop-shadow-[0_0_15px_rgba(129,243,229,0.2)]">
+            <h2 className="text-4xl md:text-6xl font-bold text-[#81f3e5] tracking-wide italic font-cormorant leading-tight drop-shadow-[0_0_15px_rgba(129,243,229,0.2)]">
               "Eu começo, mas nunca termino nada..."
             </h2>
             <p className="text-xl text-on-surface-variant leading-relaxed">
@@ -199,7 +223,7 @@ export default function LandingPage() {
                 <h2 className="text-sm uppercase tracking-[0.2em] text-[#81f3e5] font-bold mb-4 drop-shadow-[0_0_15px_rgba(129,243,229,0.5)]">
                   O Santuário Digital
                 </h2>
-                <h3 className="text-5xl md:text-6xl font-headline font-bold tracking-tighter leading-tight mb-6 text-white drop-shadow-md">
+                <h3 className="text-4xl md:text-6xl font-headline font-bold tracking-tighter leading-tight mb-6 text-white drop-shadow-md">
                   Um método estruturado para sua psique artística.
                 </h3>
               </motion.div>
@@ -226,10 +250,10 @@ export default function LandingPage() {
       </section>
 
       {/* How It Works (Bento Grid with Animated Tracking Dot) */}
-      <section className="py-24 bg-surface-container">
+      <section className="py-24 bg-surface-container overflow-hidden">
         <div className="max-w-7xl mx-auto px-6">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} className="text-center mb-20">
-            <h2 className="text-4xl md:text-5xl font-headline font-extrabold text-white tracking-tighter">Sua jornada passo a passo</h2>
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} className="text-center mb-16 md:mb-20">
+            <h2 className="text-3xl md:text-5xl font-headline font-extrabold text-white tracking-tighter">Sua jornada passo a passo</h2>
           </motion.div>
           
           <div className="relative pt-6 md:pt-10">
@@ -290,12 +314,12 @@ export default function LandingPage() {
                {[0, 0.05, 0.1].map((delay, index) => (
                  <motion.div
                    key={`mob-trail-${index}`}
-                   className="absolute left-[30px] w-5 h-5 mt-[-10px]"
+                   className="absolute left-[20px] w-4 h-4 mt-[-8px]"
                    animate={{ top: `${(activeStep * 20) + 10}%` }}
                    transition={{ duration: 0.8, ease: "easeInOut", delay }}
                  >
                     <motion.div
-                       animate={{ x: [0, -70, 0] }}
+                       animate={{ x: [0, -50, 0] }}
                        transition={{ duration: 0.8, ease: ["easeOut", "easeIn"], times: [0, 0.5, 1], delay }}
                        className="w-full h-full bg-[#81f3e5] rounded-full relative flex items-center justify-center"
                        style={{ 
@@ -337,18 +361,18 @@ export default function LandingPage() {
                ))}
             </div>
             
-            <div className={`grid grid-cols-1 md:grid-cols-5 gap-6 relative z-10 pl-16 md:pl-0`}>
+            <div className={`grid grid-cols-1 md:grid-cols-5 gap-4 md:gap-6 relative z-10 pl-10 md:pl-0`}>
               {JORNADA_STEPS.map((step, idx) => {
                 const isActive = activeStep === idx;
                 const isSuccessCard = idx === 4;
                 return (
                   <motion.div 
                     key={idx}
-                    className={`bg-gradient-to-br p-8 rounded-2xl flex flex-col justify-between h-64 border transition-all duration-500 backdrop-blur-md cursor-pointer overflow-hidden relative
+                    className={`bg-gradient-to-br p-5 md:p-8 rounded-2xl flex flex-col justify-between h-auto min-h-[14rem] md:min-h-0 md:h-64 border transition-all duration-500 backdrop-blur-md cursor-pointer overflow-hidden relative
                       ${isActive 
                         ? (isSuccessCard 
-                           ? 'from-[#005049]/80 to-[#0a1f29] border-[#81f3e5] shadow-[0_0_40px_rgba(129,243,229,0.3)] scale-110 z-20' 
-                           : 'from-[#1b4353] to-[#0a1f29] border-[#81f3e5]/50 shadow-[0_0_30px_rgba(129,243,229,0.15)] scale-105 z-20'
+                           ? 'from-[#005049]/80 to-[#0a1f29] border-[#81f3e5] shadow-[0_0_40px_rgba(129,243,229,0.3)] scale-105 md:scale-110 z-20' 
+                           : 'from-[#1b4353] to-[#0a1f29] border-[#81f3e5]/50 shadow-[0_0_30px_rgba(129,243,229,0.15)] scale-[1.02] md:scale-105 z-20'
                           )
                         : 'from-[#1b4353]/90 to-[#0a1f29]/90 border-outline-variant/30 opacity-80 scale-100 hover:opacity-100 z-10'
                       } ${step.y ? 'md:translate-y-8' : ''}`}
@@ -364,19 +388,19 @@ export default function LandingPage() {
                        />
                     )}
                     
-                    <div className="flex justify-between items-start relative z-10">
-                      <span className={`text-5xl font-headline font-extrabold transition-colors duration-500 ${isActive ? 'text-[#81f3e5]' : 'text-white/10'}`}>
+                    <div className="flex justify-between items-start relative z-10 mb-4 md:mb-0">
+                      <span className={`text-4xl md:text-5xl font-headline font-extrabold transition-colors duration-500 ${isActive ? 'text-[#81f3e5]' : 'text-white/10'}`}>
                         {step.id}
                       </span>
-                      <span className={`material-symbols-outlined transition-all duration-500 ${isActive ? 'text-[#81f3e5] opacity-100 scale-125' : 'text-outline-variant opacity-50'}`}>
+                      <span className={`material-symbols-outlined transition-all duration-500 ${isActive ? 'text-[#81f3e5] opacity-100 scale-110 md:scale-125' : 'text-outline-variant opacity-50'}`}>
                         {step.icon}
                       </span>
                     </div>
                     <div className="relative z-10">
-                      <h4 className={`text-lg font-headline font-bold mb-2 transition-colors duration-500 ${isActive ? (isSuccessCard ? 'text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]' : 'text-[#81f3e5]') : 'text-white'}`}>
+                      <h4 className={`text-base md:text-lg font-headline font-bold mb-2 transition-colors duration-500 ${isActive ? (isSuccessCard ? 'text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]' : 'text-[#81f3e5]') : 'text-white'}`}>
                         {step.title}
                       </h4>
-                      <p className="text-on-surface-variant text-sm">{step.desc}</p>
+                      <p className="text-on-surface-variant text-xs md:text-sm">{step.desc}</p>
                     </div>
                   </motion.div>
                 );
@@ -389,8 +413,8 @@ export default function LandingPage() {
       <section className="py-24 bg-surface overflow-hidden">
         <div className="max-w-7xl mx-auto px-6">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} className="bg-surface-container-high rounded-[3rem] overflow-hidden grid grid-cols-1 lg:grid-cols-2 items-center">
-            <div className="p-12 md:p-20 space-y-8">
-              <h2 className="text-4xl md:text-5xl font-headline font-extrabold text-white tracking-tighter leading-tight">
+            <div className="p-10 md:p-20 space-y-8">
+              <h2 className="text-3xl md:text-5xl font-headline font-extrabold text-white tracking-tighter leading-tight">
                 Criado por quem vive a música — e entende a mente por trás dela
               </h2>
               <p className="text-lg text-on-surface-variant leading-relaxed">
@@ -422,7 +446,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} className="text-center mb-16 space-y-4">
             <h2 className="text-sm uppercase tracking-[0.2em] text-[#81f3e5] font-bold">Investimento em você</h2>
-            <h3 className="text-4xl md:text-5xl font-headline font-extrabold text-white tracking-tighter">Escolha o seu caminho de evolução</h3>
+            <h3 className="text-3xl md:text-5xl font-headline font-extrabold text-white tracking-tighter">Escolha o seu caminho de evolução</h3>
           </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-surface-container-lowest p-10 rounded-3xl border border-outline-variant/10 flex flex-col transition-colors">
@@ -584,7 +608,9 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-4">
             <div className="text-xl font-bold flex items-center gap-2">
-               <Image src="/logo.png" alt="Missão Músico" width={120} height={30} className="w-auto h-6 brightness-0 invert opacity-90" />
+              <div className="bg-surface-container px-3 py-1.5 rounded-lg shadow-[0_0_15px_rgba(129,243,229,0.15)] flex items-center inline-flex">
+                 <Image src="/logo.png" alt="Missão Músico" width={120} height={30} className="w-auto h-5 md:h-6" />
+              </div>
             </div>
             <p className="leading-relaxed">Psicanálise e desenvolvimento humano para músicos que buscam evolução artística e liberdade mental.</p>
           </div>

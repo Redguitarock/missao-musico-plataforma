@@ -170,6 +170,13 @@ export default function HeroInteractive() {
       mouse.y = e.clientY - rect.top
     }
     
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!containerRef.current || e.touches.length === 0) return
+      const rect = containerRef.current.getBoundingClientRect()
+      mouse.x = e.touches[0].clientX - rect.left
+      mouse.y = e.touches[0].clientY - rect.top
+    }
+    
     const handleMouseLeave = () => {
       mouse.x = -1000
       mouse.y = -1000
@@ -178,6 +185,9 @@ export default function HeroInteractive() {
     if (containerRef.current) {
        containerRef.current.addEventListener('mousemove', handleMouseMove)
        containerRef.current.addEventListener('mouseleave', handleMouseLeave)
+       containerRef.current.addEventListener('touchmove', handleTouchMove)
+       containerRef.current.addEventListener('touchstart', handleTouchMove)
+       containerRef.current.addEventListener('touchend', handleMouseLeave)
     }
 
     return () => {
@@ -185,6 +195,9 @@ export default function HeroInteractive() {
       if (containerRef.current) {
          containerRef.current.removeEventListener('mousemove', handleMouseMove)
          containerRef.current.removeEventListener('mouseleave', handleMouseLeave)
+         containerRef.current.removeEventListener('touchmove', handleTouchMove)
+         containerRef.current.removeEventListener('touchstart', handleTouchMove)
+         containerRef.current.removeEventListener('touchend', handleMouseLeave)
       }
       cancelAnimationFrame(animationFrameId)
     }
@@ -218,7 +231,7 @@ export default function HeroInteractive() {
             <span className="inline-block px-4 py-1.5 rounded-full bg-secondary/10 border border-[#81f3e5]/20 text-[#81f3e5] text-xs md:text-sm font-bold tracking-wider mb-6 backdrop-blur-md shadow-sm">
               MÉTODO PSICANALÍTICO
             </span>
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white tracking-tighter leading-[1.1] mb-6">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-headline font-extrabold text-white tracking-tighter leading-[1.1] mb-6">
               Desbloqueie sua mente para <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#81f3e5] to-[#26A69A]">criar sem limites</span>
             </h1>
             <p className="text-lg md:text-xl text-slate-300/90 leading-relaxed mb-10 max-w-xl font-light">
@@ -231,13 +244,8 @@ export default function HeroInteractive() {
             </div>
           </div>
 
-          {/* Camada 3: Imagem da Mente mesclada + Animação de Zoom e Parallax */}
-          {/* 
-            Para o efeito mesclado pedindo "png que se funde com fundo escuro", 
-            estamos usando uma foto espetacular de head shape/fios 
-            + mix-blend-screen para virar um Holograma/PNG invisível na parte escura.
-          */}
-          <div className="relative h-[400px] md:h-[600px] flex items-center justify-center pointer-events-none mt-10 md:mt-0">
+          {/* Camada 3: Imagem da Mente mesclada + Animação de Zoom e Parallax (Desativado no Mobile para não quebrar leitura) */}
+          <div className="hidden lg:flex relative h-[400px] md:h-[600px] items-center justify-center pointer-events-none mt-10 md:mt-0">
              <div 
                 className="w-full h-full absolute inset-0 transition-transform duration-75 ease-out flex items-center justify-center"
                 style={{ transform: `scale(${zoomScaleImage}) translateY(${translateYImage}px)` }}

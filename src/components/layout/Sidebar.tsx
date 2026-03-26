@@ -54,7 +54,9 @@ export default function Sidebar() {
         ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
         <div className="px-8 mb-12 flex flex-col gap-2">
-          <Image src="/logo.png" alt="Missão Músico" width={160} height={40} className="w-auto h-8 brightness-0 invert opacity-90" />
+          <div className="bg-white/10 px-3 py-1.5 rounded-lg shadow-[0_0_15px_rgba(255,255,255,0.05)] inline-flex items-center w-max">
+            <Image src="/logo.png" alt="Missão Músico" width={160} height={40} className="w-auto h-6 opacity-90" />
+          </div>
           <p className="font-manrope text-[10px] font-medium text-slate-400 mt-1 uppercase tracking-widest pl-1">Portal do Músico</p>
         </div>
         
