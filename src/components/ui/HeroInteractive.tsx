@@ -54,13 +54,12 @@ export default function HeroInteractive() {
         this.y = y
         this.baseX = x
         this.baseY = y
-        this.size = Math.random() * 2 + 1
-        this.density = (Math.random() * 10) + 1 // Densidade menor para fluidez
-        const musicalChars = ['♪', '♫', '♬', '•', '∘', '•']
+        this.size = Math.random() * 3.5 + 1.5
+        this.density = (Math.random() * 10) + 1 
+        const musicalChars = ['♪', '♫', '♬', '♭', '♮', '♯', '•']
         this.char = musicalChars[Math.floor(Math.random() * musicalChars.length)]
         
-        // Colors from theme: primary, secondary, and bright teal
-        const colors = ['#006a62', '#81f3e5', '#8ef4e9', 'rgba(255,255,255,0.7)']
+        const colors = ['#006a62', '#81f3e5', '#8ef4e9', 'rgba(255,255,255,0.9)']
         this.color = colors[Math.floor(Math.random() * colors.length)]
       }
 
@@ -69,12 +68,12 @@ export default function HeroInteractive() {
         ctx.fillStyle = this.color
         if (this.char === '•' || this.char === '∘') {
           ctx.beginPath()
-          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2)
+          ctx.arc(this.x, this.y, this.size * 1.5, 0, Math.PI * 2)
           ctx.closePath()
           ctx.fill()
         } else {
-          ctx.font = `${this.size * 5}px Arial`
-          ctx.globalAlpha = 0.6
+          ctx.font = `bold ${this.size * 6}px Arial`
+          ctx.globalAlpha = 0.85
           ctx.fillText(this.char, this.x, this.y)
           ctx.globalAlpha = 1
         }
@@ -116,8 +115,8 @@ export default function HeroInteractive() {
 
     const init = () => {
       particles.length = 0
-      // Aumentando número de pontos para que as conexões estejam "sempre ligadas"
-      const numberOfParticles = Math.floor((canvas.width * canvas.height) / 6000)
+      // Mais denso para evidenciar mais a rede
+      const numberOfParticles = Math.floor((canvas.width * canvas.height) / 4500)
       for (let i = 0; i < numberOfParticles; i++) {
         let x = Math.random() * canvas.width
         let y = Math.random() * canvas.height
@@ -138,8 +137,8 @@ export default function HeroInteractive() {
             opacityValue = 1 - (distance / 40000)
             if (!ctx) continue
             // Linhas constantes e mais visíveis perto
-            ctx.strokeStyle = `rgba(129, 243, 229, ${opacityValue * 0.3})`
-            ctx.lineWidth = 0.8
+            ctx.strokeStyle = `rgba(129, 243, 229, ${opacityValue * 0.45})`
+            ctx.lineWidth = 1
             ctx.beginPath()
             ctx.moveTo(particles[a].x, particles[a].y)
             ctx.lineTo(particles[b].x, particles[b].y)
