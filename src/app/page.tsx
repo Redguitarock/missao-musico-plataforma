@@ -66,16 +66,18 @@ export default function LandingPage() {
   
   const prevActiveStep = prevStepRef.current;
 
+  // Mobile ball positions aligned to card centers (container starts with top-[-10px])
+  // Cards 1&2 top row, cards 3&4 mid row, card 5 bottom centered
   const mobilePositions = [
-    { left: 25, top: 4 },
-    { left: 75, top: 4 },
-    { left: 25, top: 38 },
-    { left: 75, top: 38 },
-    { left: 50, top: 72 },
+    { left: 25, top: 12 },  // card 1 — was 4, now touches card center
+    { left: 75, top: 12 },  // card 2 — was 4
+    { left: 25, top: 44 },  // card 3
+    { left: 75, top: 44 },  // card 4
+    { left: 50, top: 76 },  // card 5
   ];
   const prevMobPos = mobilePositions[prevActiveStep] || mobilePositions[0];
   const currMobPos = mobilePositions[activeStep] || mobilePositions[0];
-  const mobPeakTop = Math.min(prevMobPos.top, currMobPos.top) - 12;
+  const mobPeakTop = Math.min(prevMobPos.top, currMobPos.top) - 10;
 
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
@@ -130,14 +132,15 @@ export default function LandingPage() {
               initial={{ opacity: 0, height: 0 }} 
               animate={{ opacity: 1, height: "auto" }} 
               exit={{ opacity: 0, height: 0 }} 
-              className="md:hidden bg-surface-container-high border-b border-outline-variant/10 overflow-hidden flex flex-col z-40 absolute w-full left-0 top-20 shadow-2xl"
+              className="md:hidden border-b border-white/10 overflow-hidden flex flex-col z-40 absolute w-full left-0 top-20 shadow-2xl"
+              style={{ background: '#0D2A35' }}
             >
               <div className="flex flex-col px-6 py-6 gap-6">
-                <Link href="/" onClick={() => setIsMenuOpen(false)} className="text-white font-semibold">Início</Link>
-                <Link href="#metodo" onClick={() => setIsMenuOpen(false)} className="text-on-surface-variant hover:text-white">Método</Link>
-                <Link href="#planos" onClick={() => setIsMenuOpen(false)} className="text-on-surface-variant hover:text-white">Planos</Link>
-                <div className="w-full h-[1px] bg-white/5 my-2"></div>
-                <Link href="/login" onClick={() => setIsMenuOpen(false)} className="text-on-surface-variant hover:text-white font-medium">Entrar</Link>
+                <Link href="/" onClick={() => setIsMenuOpen(false)} className="text-white font-semibold text-lg">Início</Link>
+                <Link href="#metodo" onClick={() => setIsMenuOpen(false)} className="text-slate-300 hover:text-white text-lg">Método</Link>
+                <Link href="#planos" onClick={() => setIsMenuOpen(false)} className="text-slate-300 hover:text-white text-lg">Planos</Link>
+                <div className="w-full h-[1px] bg-white/10 my-1"></div>
+                <Link href="/login" onClick={() => setIsMenuOpen(false)} className="text-slate-300 hover:text-white font-medium text-lg">Entrar</Link>
               </div>
             </motion.div>
           )}
@@ -155,10 +158,10 @@ export default function LandingPage() {
             variants={fadeInUp}
             className="max-w-3xl mb-16"
           >
-            <h2 className="text-sm uppercase tracking-[0.2em] text-on-tertiary-container font-bold mb-4">
+            <h2 className="text-xs uppercase tracking-[0.25em] text-on-tertiary-container font-bold mb-4 font-headline">
               A Luta Interna
             </h2>
-            <p className="text-3xl md:text-5xl font-headline font-bold text-white tracking-tighter leading-tight">
+            <p className="text-3xl md:text-[2.8rem] font-cormorant font-semibold text-white tracking-tight leading-[1.15]">
               A música nasce na mente, mas é nela que os maiores obstáculos residem.
             </p>
           </motion.div>
@@ -243,10 +246,10 @@ export default function LandingPage() {
             </motion.div>
             <motion.div variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }} className="order-1 lg:order-2 space-y-10">
               <motion.div variants={fadeInUp}>
-                <h2 className="text-sm uppercase tracking-[0.2em] text-[#81f3e5] font-bold mb-4 drop-shadow-[0_0_15px_rgba(129,243,229,0.5)]">
+                <h2 className="text-xs uppercase tracking-[0.25em] text-[#81f3e5] font-bold mb-4 drop-shadow-[0_0_15px_rgba(129,243,229,0.5)] font-headline">
                   O Santuário Digital
                 </h2>
-                <h3 className="text-4xl md:text-6xl font-headline font-bold tracking-tighter leading-tight mb-6 text-white drop-shadow-md">
+                <h3 className="text-3xl md:text-[2.7rem] font-cormorant font-semibold tracking-tight leading-[1.15] mb-6 text-white drop-shadow-md">
                   Um método estruturado para sua psique artística.
                 </h3>
               </motion.div>
@@ -276,7 +279,7 @@ export default function LandingPage() {
       <section className="py-24 bg-surface-container overflow-hidden">
         <div className="max-w-7xl mx-auto px-6">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} className="text-center mb-16 md:mb-20">
-            <h2 className="text-3xl md:text-5xl font-headline font-extrabold text-white tracking-tighter">Sua jornada passo a passo</h2>
+            <h2 className="text-3xl md:text-[2.6rem] font-cormorant font-semibold text-white tracking-tight leading-tight">Sua jornada passo a passo</h2>
           </motion.div>
           
           <div className="relative pt-6 md:pt-10">
@@ -400,17 +403,26 @@ export default function LandingPage() {
                 return (
                   <motion.div 
                     key={idx}
-                    className={`${isSuccessMobile} md:col-span-1 bg-gradient-to-br p-4 md:p-8 rounded-xl md:rounded-2xl flex flex-col justify-between min-h-[140px] md:h-64 border transition-all duration-500 backdrop-blur-md cursor-pointer overflow-hidden relative
+                    className={`${isSuccessMobile} md:col-span-1 bg-gradient-to-br p-5 md:p-8 rounded-xl md:rounded-2xl flex flex-col justify-between min-h-[160px] md:h-64 border transition-all duration-500 backdrop-blur-md cursor-pointer overflow-hidden relative
                       ${isActive 
                         ? (isSuccessCard 
-                           ? 'from-[#005049]/80 to-[#0a1f29] border-[#81f3e5] shadow-[0_0_40px_rgba(129,243,229,0.3)] scale-[1.05] md:scale-110 z-20' 
-                           : 'from-[#1b4353] to-[#0a1f29] border-[#81f3e5]/50 shadow-[0_0_30px_rgba(129,243,229,0.15)] scale-[1.02] md:scale-105 z-20'
+                           ? 'from-[#005049]/80 to-[#0a1f29] border-[#81f3e5] shadow-[0_0_40px_rgba(129,243,229,0.3)] scale-[1.03] md:scale-110 z-20' 
+                           : 'from-[#1b4353] to-[#0a1f29] border-[#81f3e5]/50 shadow-[0_0_30px_rgba(129,243,229,0.2)] scale-[1.02] md:scale-105 z-20'
                           )
                         : 'from-[#1b4353]/90 to-[#0a1f29]/90 border-outline-variant/30 opacity-80 scale-100 hover:opacity-100 z-10'
                       } ${step.y ? 'md:translate-y-8' : ''}`}
                     onClick={() => setActiveStep(idx)}
                   >
-                    {/* Background Glow Shimmer for Success Card */}
+                    {/* Radial glow on active */}
+                    {isActive && (
+                      <div className="absolute inset-0 pointer-events-none z-0" style={{
+                        background: isSuccessCard
+                          ? 'radial-gradient(ellipse at top, rgba(129,243,229,0.18) 0%, transparent 70%)'
+                          : 'radial-gradient(ellipse at top, rgba(129,243,229,0.10) 0%, transparent 70%)'
+                      }} />
+                    )}
+
+                    {/* Shimmer for Success Card */}
                     {isActive && isSuccessCard && (
                        <motion.div
                          className="absolute top-0 w-[150%] h-full bg-gradient-to-r from-transparent via-[#81f3e5]/20 to-transparent skew-x-[-20deg] z-0 pointer-events-none"
@@ -419,20 +431,40 @@ export default function LandingPage() {
                          transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 0.2, ease: "easeInOut", delay: 0.5 }}
                        />
                     )}
+
+                    {/* Confetti on card 5 when active */}
+                    {isActive && isSuccessCard && (
+                      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+                        {[...Array(12)].map((_, i) => (
+                          <motion.div
+                            key={`confetti-${i}`}
+                            className={`absolute w-2 h-2 rounded-sm ${['bg-[#81f3e5]','bg-[#f38181]','bg-[#f3d981]','bg-[#c481f3]','bg-white','bg-[#81f3a5]'][i % 6]}`}
+                            initial={{ y: -8, x: `${(i * 8.3) % 100}%`, opacity: 1, rotate: 0, scale: 0 }}
+                            animate={{
+                              y: ['0%', '110%'],
+                              rotate: [0, 360 * (i % 2 === 0 ? 1 : -1)],
+                              scale: [0, 1, 0.8],
+                              opacity: [0, 1, 0]
+                            }}
+                            transition={{ duration: 1.4, delay: 0.6 + i * 0.06, ease: 'easeIn', repeat: Infinity, repeatDelay: 1.2 }}
+                          />
+                        ))}
+                      </div>
+                    )}
                     
                     <div className="flex justify-between items-start relative z-10 mb-2 md:mb-0">
-                      <span className={`text-2xl md:text-5xl font-headline font-extrabold transition-colors duration-500 ${isActive ? 'text-[#81f3e5]' : 'text-white/10'}`}>
+                      <span className={`text-3xl md:text-5xl font-headline font-extrabold transition-colors duration-500 ${isActive ? 'text-[#81f3e5]' : 'text-white/10'}`}>
                         {step.id}
                       </span>
-                      <span className={`material-symbols-outlined transition-all duration-500 ${isActive ? 'text-[#81f3e5] opacity-100 scale-90 md:scale-125' : 'text-outline-variant opacity-50 scale-75 md:scale-100'}`}>
+                      <span className={`material-symbols-outlined text-2xl transition-all duration-500 ${isActive ? 'text-[#81f3e5] opacity-100 scale-100 md:scale-125' : 'text-outline-variant opacity-50 scale-90 md:scale-100'}`}>
                         {step.icon}
                       </span>
                     </div>
                     <div className="relative z-10">
-                      <h4 className={`text-[13px] md:text-lg leading-tight font-headline font-bold mb-1 md:mb-2 transition-colors duration-500 ${isActive ? (isSuccessCard ? 'text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]' : 'text-[#81f3e5]') : 'text-white'}`}>
+                      <h4 className={`text-[14px] md:text-lg leading-tight font-headline font-bold mb-1 md:mb-2 transition-colors duration-500 ${isActive ? (isSuccessCard ? 'text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]' : 'text-[#81f3e5]') : 'text-white'}`}>
                         {step.title}
                       </h4>
-                      <p className="text-on-surface-variant text-[10px] md:text-sm leading-tight">{step.desc}</p>
+                      <p className="text-on-surface-variant text-[11px] md:text-sm leading-snug">{step.desc}</p>
                     </div>
                   </motion.div>
                 );
@@ -446,7 +478,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} className="bg-surface-container-high rounded-[3rem] overflow-hidden grid grid-cols-1 lg:grid-cols-2 items-center">
             <div className="p-10 md:p-20 space-y-8">
-              <h2 className="text-3xl md:text-5xl font-headline font-extrabold text-white tracking-tighter leading-tight">
+              <h2 className="text-3xl md:text-[2.6rem] font-cormorant font-semibold text-white tracking-tight leading-[1.15]">
                 Criado por quem vive a música — e entende a mente por trás dela
               </h2>
               <p className="text-lg text-on-surface-variant leading-relaxed">
@@ -462,12 +494,37 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
-            <div className="h-full min-h-[500px] relative">
-              <img
-                alt="Rodrigo Moreira"
-                className="absolute inset-0 w-full h-full object-cover"
-                src="/Rodrigo%20Moreira%20-%20psicanalista.png"
-              />
+            {/* Foto do Autor — responsiva em todos os dispositivos */}
+            <div className="flex flex-col items-center justify-center bg-[#0D2A35] lg:bg-transparent">
+              {/* Mobile/Tablet: retrato completo sem corte */}
+              <div className="lg:hidden w-full flex flex-col items-center pb-10 gap-4">
+                <div className="w-full overflow-hidden">
+                  <img
+                    alt="Rodrigo Moreira — Psicanalista e Músico"
+                    className="w-full h-auto object-contain"
+                    src="/Rodrigo%20Moreira%20%20-%20psicanalista.png"
+                  />
+                </div>
+                <div className="text-center pb-2">
+                  <p className="text-white font-headline font-bold text-xl">Rodrigo Moreira</p>
+                  <p className="text-[#81f3e5] text-sm font-medium">Psicanalista &amp; Músico</p>
+                </div>
+              </div>
+              {/* Desktop: imagem em cover lateral com nome na base */}
+              <div className="hidden lg:block h-full min-h-[500px] relative w-full">
+                <img
+                  alt="Rodrigo Moreira"
+                  className="absolute inset-0 w-full h-full object-cover object-top"
+                  src="/Rodrigo%20Moreira%20%20-%20psicanalista.png"
+                />
+                {/* Nome no canto superior esquerdo — não sobrepõe o nome impresso na foto */}
+                <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-[#0D2A35]/90 to-transparent flex items-start px-6 pt-4">
+                  <div>
+                    <p className="text-white font-headline font-bold text-lg leading-tight">Rodrigo Moreira</p>
+                    <p className="text-[#81f3e5] text-sm font-medium">Psicanalista &amp; Músico</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </motion.div>
         </div>
@@ -626,7 +683,7 @@ export default function LandingPage() {
               <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#81f3e5] rounded-full blur-[100px] translate-x-1/2 translate-y-1/2"></div>
             </div>
             <div className="relative z-10 space-y-8">
-              <h2 className="text-4xl md:text-6xl font-headline font-extrabold tracking-tight text-white">Comece agora sua transformação</h2>
+              <h2 className="text-3xl md:text-[2.8rem] font-cormorant font-semibold tracking-tight text-white leading-[1.15]">Comece agora sua transformação</h2>
               <p className="text-xl text-primary-fixed-dim max-w-2xl mx-auto font-light">Sua música merece a melhor versão de você. Não deixe que bloqueios internos silenciem seu talento.</p>
               <Link href="/cadastro" className="inline-block bg-white text-surface px-10 py-5 rounded-2xl text-xl font-bold transition-all hover:scale-105 active:scale-95 shadow-2xl hover:bg-[#81f3e5] hover:text-[#005049]">
                 Quero começar agora
