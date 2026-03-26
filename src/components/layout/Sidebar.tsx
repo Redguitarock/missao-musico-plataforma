@@ -82,12 +82,7 @@ export default function Sidebar() {
           })}
         </nav>
         
-        <div className="px-6 mb-8 mt-6">
-           <button className="w-full bg-[#26A69A] text-white rounded-full py-3 px-4 flex items-center justify-center gap-2 hover:opacity-90 transition-opacity font-semibold text-sm shadow-lg shadow-[#26A69A]/20">
-              <span className="material-symbols-outlined text-[20px]">add</span>
-              Nova Sessão
-           </button>
-        </div>
+
         
         <div className="border-t border-white/10 pt-6 space-y-2">
           <Link href="/perfil" className="flex items-center gap-3 text-slate-400 py-2 px-6 hover:bg-white/5 hover:text-white transition-all">

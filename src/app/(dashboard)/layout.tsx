@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Sidebar from '@/components/layout/Sidebar'
-import AudioPlayer from '@/components/ui/AudioPlayer'
 
 export default async function DashboardLayout({
   children,
@@ -35,8 +34,6 @@ export default async function DashboardLayout({
           <p className="font-manrope text-xs uppercase tracking-widest text-slate-500">© {new Date().getFullYear()} Missão Músico. A Ressonância Terapêutica.</p>
         </footer>
       </main>
-
-      <AudioPlayer />
     </div>
   )
 }

@@ -267,7 +267,7 @@ export default function HeroInteractive() {
           
           {/* Camada 3: Imagem da Mente (Mobile Background) */}
           <div 
-            className="lg:hidden absolute inset-0 z-0 flex items-start justify-center pointer-events-none overflow-hidden transition-opacity duration-75"
+            className="lg:hidden absolute inset-0 z-0 flex items-start justify-center pointer-events-none transition-opacity duration-75 [mask-image:linear-gradient(to_bottom,transparent_0%,black_15%,black_85%,transparent_100%)]"
             style={{ opacity: mobileOpacityValue }}
           >
              <div 
