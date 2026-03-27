@@ -113,6 +113,10 @@ export default function LandingPage() {
             <Link href="#planos" className="text-on-surface-variant hover:text-white transition-colors">
               Planos
             </Link>
+            <Link href="/profissional" className="bg-[#81f3e5]/10 text-[#81f3e5] px-4 py-1.5 rounded-full border border-[#81f3e5]/20 text-xs font-bold hover:bg-[#81f3e5]/20 transition-all flex items-center gap-2">
+               <span className="material-symbols-outlined text-sm">school</span>
+               Sou Profissional
+            </Link>
           </div>
           <div className="flex items-center gap-2 md:gap-4">
             <Link href="/login" className="hidden sm:block text-on-surface-variant hover:text-white px-4 py-2 transition-all active:scale-95">
@@ -164,6 +168,13 @@ export default function LandingPage() {
             <p className="text-3xl md:text-[2.8rem] font-cormorant font-semibold text-white tracking-tight leading-[1.15]">
               A música nasce na mente, mas é nela que os maiores obstáculos residem.
             </p>
+            <div className="mt-8 flex flex-col sm:flex-row gap-4 items-center">
+               <Link href="/profissional" className="group flex items-center gap-2 px-6 py-2 rounded-full border border-[#81f3e5]/30 bg-[#81f3e5]/5 hover:bg-[#81f3e5]/10 text-[#81f3e5] text-sm font-bold transition-all shadow-lg shadow-[#81f3e5]/10">
+                 <span className="material-symbols-outlined text-sm">school</span>
+                 É Profissional ou Educador? Conheça nossa área exclusiva
+                 <span className="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+               </Link>
+            </div>
           </motion.div>
           
           <motion.div 

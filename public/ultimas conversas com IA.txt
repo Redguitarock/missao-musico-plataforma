@@ -1,0 +1,42 @@
+ultimas conversas com IA:
+
+IA falou:
+Features do Builder MVP
+📄 Gestão de páginas — criar, nomear, deletar, navegar
+🧩 Paleta de 16 blocos — modal visual com todos os tipos
+✏️ Edição inline — clique no bloco para editar; preview em tempo real
+↕️ Reordenar — botões ↑↓ em cada bloco
+👁️ Preview fiel — tab "Preview" renderiza exatamente como o leitor vê (com paginação)
+📊 Visualização JSON — tab "JSON" mostra o documento estruturado
+⬆️ Importar JSON — upload + validação automática com feedback de erros
+⬇️ Exportar JSON — download do arquivo formatado
+Zero breaking changes
+ebook1.ts — intocado
+LessonPage — intocado
+Todas as rotas existentes — funcionando normalmente
+Função lessonToEbook() permite converter e-books legados se necessário
+Para o próximo passo (PDF)
+A arquitetura modular está pronta para receber um parser de PDF — basta criar um script que converta PDF → JSON no formato EbookDocument e fazer upload via "Importar JSON". O exemplo de template está em /public/exemplo-ebook.json.
+
+perguntei:
+como posso testar, o que preciso? de um e-book em pdf? ou ainda preciso de uma parte no sistema que converta meu ebook pdf par ajson?
+como podemos fazer isso? já tem no sistema?
+
+
+ela respondeu:
+Ótima pergunta! Vou explicar o estado atual e implementar o parser de PDF → JSON para fechar o ciclo completo.
+
+Estado atual:
+
+✅ O builder está pronto e funcional
+✅ Você pode testar hoje com o arquivo 
+
+/public/exemplo-ebook.json
+❌ Conversão PDF → JSON não existe ainda (estava preparada na arquitetura, mas não implementada)
+Vou implementar o parser de PDF agora. Primeiro vou checar os docs do Next.js 16 para API Routes:
+
+Instalado. Agora vou criar o parser heurístico no servidor e a interface no builder:
+
+Agora precisamos verificar se o pdf-parse funciona bem no ambiente serverless do Next.js. Ele usa fs internamente ao carregar testes, o que pode causar problemas. Vamos configurar o Next.js para lidar com isso:
+
+então ela parou.

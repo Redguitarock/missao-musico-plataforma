@@ -1,0 +1,159 @@
+{
+  "version": "1.0",
+  "type": "ebook",
+  "id": "exemplo-ebook-interativo",
+  "title": "Exemplo de E-book Interativo",
+  "description": "Este arquivo demonstra todos os tipos de blocos disponíveis no Builder.",
+  "pages": [
+    {
+      "id": "page-1",
+      "title": "Introdução",
+      "blocks": [
+        {
+          "id": "sec-intro",
+          "type": "section",
+          "content": "Bem-vindo ao E-book Interativo"
+        },
+        {
+          "id": "txt-intro-1",
+          "type": "text",
+          "content": "Este é um exemplo de e-book criado com o Builder da plataforma. Você pode importar este arquivo JSON para explorar todos os tipos de blocos disponíveis e adaptá-los ao seu conteúdo."
+        },
+        {
+          "id": "hl-intro",
+          "type": "highlight",
+          "content": "A música e a psicanálise compartilham uma característica fundamental: ambas buscam dar voz ao que não pode ser facilmente expresso por palavras."
+        },
+        {
+          "id": "note-intro",
+          "type": "note",
+          "content": "Este e-book é um modelo. Personalize-o com o seu conteúdo usando o Builder.",
+          "variant": "success",
+          "icon": "check_circle"
+        }
+      ]
+    },
+    {
+      "id": "page-2",
+      "title": "Conceitos-Chave",
+      "blocks": [
+        {
+          "id": "sec-conceitos",
+          "type": "section",
+          "content": "Conceitos Fundamentais"
+        },
+        {
+          "id": "sub-conceitos",
+          "type": "subsection",
+          "content": "Os três pilares principais"
+        },
+        {
+          "id": "txt-conceitos",
+          "type": "text",
+          "content": "Os conceitos fundamentais podem ser organizados em grupos temáticos para facilitar a compreensão. A seguir, veja exemplos de todos os tipos de blocos disponíveis."
+        },
+        {
+          "id": "cards-1",
+          "type": "card_group",
+          "title": "Pilares do Método",
+          "cards": [
+            { "title": "Autoconhecimento", "text": "Compreender os próprios padrões mentais e emocionais que interferem na performance." },
+            { "title": "Técnica Consciente", "text": "Usar a prática deliberada aliada à consciência psicológica para acelerar o desenvolvimento." },
+            { "title": "Expressão Autêntica", "text": "Liberar a expressão artística dos filtros inconscientes que a bloqueiam." }
+          ]
+        },
+        {
+          "id": "list-1",
+          "type": "list",
+          "items": [
+            "Identificar bloqueios emocionais na performance",
+            "Desenvolver consciência dos mecanismos de defesa",
+            "Transformar resistências em energia criativa",
+            "Estabelecer uma rotina de introspecção musical"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "page-3",
+      "title": "Elementos Visuais",
+      "blocks": [
+        {
+          "id": "sec-visual",
+          "type": "section",
+          "content": "Elementos Visuais Interativos"
+        },
+        {
+          "id": "nc-1",
+          "type": "numbered_cards",
+          "cards": [
+            { "title": "Observe", "text": "Identifique os padrões recorrentes em sua prática e performance." },
+            { "title": "Analise", "text": "Reflita sobre as origens emocionais desses padrões." },
+            { "title": "Transforme", "text": "Aplique técnicas psicanalíticas para ressignificar esses padrões." }
+          ]
+        },
+        {
+          "id": "ic-1",
+          "type": "icon_cards",
+          "cards": [
+            { "icon": "psychology", "title": "Mente", "text": "O estado mental influencia diretamente a qualidade da expressão musical." },
+            { "icon": "favorite", "title": "Emoção", "text": "As emoções são combustível criativo quando bem processadas." },
+            { "icon": "music_note", "title": "Expressão", "text": "A técnica liberta quando aliada à consciência emocional." }
+          ]
+        },
+        {
+          "id": "flow-1",
+          "type": "flow_steps",
+          "steps": [
+            { "icon": "heart_broken", "title": "Emoção Bruta", "text": "Sentimentos intensos de raiva, paixão, luto ou desejo" },
+            { "icon": "psychology", "title": "Processo", "text": "Transformação psíquica da energia emocional" },
+            { "icon": "music_note", "title": "Expressão", "text": "Criação musical que preserva a intensidade emocional" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "page-4",
+      "title": "Reflexão Final",
+      "blocks": [
+        {
+          "id": "sec-final",
+          "type": "section",
+          "content": "Reflexão e Autoavaliação"
+        },
+        {
+          "id": "circ-1",
+          "type": "interactive_circle",
+          "items": [
+            { "id": "i1", "icon": "local_fire_department", "title": "Id", "text": "A parte primitiva e instintiva da personalidade, fonte dos impulsos criativos primários." },
+            { "id": "i2", "icon": "balance", "title": "Ego", "text": "A parte que lida com a realidade, mediando entre os desejos do id e as restrições do mundo." },
+            { "id": "i3", "icon": "gavel", "title": "Superego", "text": "A parte que incorpora valores e normas, funcionando como consciência moral interna." }
+          ]
+        },
+        {
+          "id": "qz-1",
+          "type": "interactive_quiz",
+          "question": "Após explorar esses conceitos, qual aspecto você sente que mais precisa trabalhar?",
+          "options": [
+            { "id": "o1", "label": "A relação com meu instrumento e as emoções que projeto nele." },
+            { "id": "o2", "label": "Os bloqueios mentais que surgem antes e durante a performance." },
+            { "id": "o3", "label": "A expressão emocional autêntica na minha música." }
+          ]
+        },
+        {
+          "id": "case-1",
+          "type": "case",
+          "title": "Estudo de Caso: Ana, uma pianista",
+          "description": "Ana sempre sentiu um bloqueio imenso antes de apresentações. Ao explorar a psicanalise, ela descobriu que sua ansiedade tinha raízes em experiências de crítica severa na infância. Ao reconhecer e trabalhar esse padrão, ela transformou sua relação com o palco completamente."
+        },
+        {
+          "id": "note-final",
+          "type": "note",
+          "content": "A jornada de autoconhecimento é contínua. Cada módulo desta plataforma foi projetado para aprofundar essa exploração, passo a passo.",
+          "variant": "success",
+          "icon": "check_circle"
+        }
+      ]
+    }
+  ]
+}
