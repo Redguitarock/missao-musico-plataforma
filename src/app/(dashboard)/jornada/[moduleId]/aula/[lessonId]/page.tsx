@@ -1,12 +1,13 @@
 'use client'
 
 import React, { useState, use, useMemo, Suspense, useEffect } from 'react'
-import { useSearchParams, usePathname } from 'next/navigation'
+import { useSearchParams, usePathname, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import { BlockRenderer } from '@/modules/renderer'
 import type { EbookDocument, EbookPage } from '@/modules/content-schema'
 import { EBOOK_MODULE_1 } from '@/data/ebook1'
+import { saveLessonProgress } from '../../../../home/actions'
 
 interface LessonData {
   id: string
@@ -30,6 +31,7 @@ function LessonPageInner(props: { params: Promise<{ moduleId: string, lessonId: 
   const params = use(props.params)
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const router = useRouter()
   const supabase = createClient()
 
   const [lesson, setLesson] = useState<LessonData | null>(null)
@@ -166,6 +168,27 @@ function LessonPageInner(props: { params: Promise<{ moduleId: string, lessonId: 
     }
   }, [pages, searchParams])
 
+  // 🔥 SALVAMENTO AUTOMÁTICO DE PROGRESSO (Apenas para Alunos)
+  useEffect(() => {
+    if (activeMode === 'STUDENT' && pages.length > 0) {
+      const saveProgress = async () => {
+         const mId = parseInt(params.moduleId, 10)
+         if (isNaN(mId)) return
+         
+         const res = await saveLessonProgress(
+            mId,
+            params.lessonId,
+            currentPageIdx + 1,
+            pages.length
+         )
+         if (!res.success) console.error('Erro ao salvar progresso automático.')
+      }
+
+      const timer = setTimeout(saveProgress, 1000) // Debounce para não sobrecarregar
+      return () => clearTimeout(timer)
+    }
+  }, [currentPageIdx, pages.length, activeMode, params.moduleId, params.lessonId])
+
   if (loading) return (
     <div className="flex items-center justify-center min-h-[60vh]">
       <span className="material-symbols-outlined text-[#81f3e5] animate-spin text-4xl">progress_activity</span>
@@ -173,6 +196,14 @@ function LessonPageInner(props: { params: Promise<{ moduleId: string, lessonId: 
   )
 
   const currentPage = pages[currentPageIdx]
+
+  const handlePageChange = (newIdx: number) => {
+    const sp = new URLSearchParams(searchParams.toString())
+    sp.set('page', (newIdx + 1).toString())
+    router.replace(`${pathname}?${sp.toString()}`)
+    setCurrentPageIdx(newIdx)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   return (
     <div className="relative max-w-3xl mx-auto pb-24 font-manrope">
@@ -223,7 +254,7 @@ function LessonPageInner(props: { params: Promise<{ moduleId: string, lessonId: 
       <div className="mt-24 pt-12 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-8">
         <button
           disabled={currentPageIdx === 0}
-          onClick={() => { setCurrentPageIdx(p => p - 1); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+          onClick={() => handlePageChange(currentPageIdx - 1)}
           className="w-full sm:w-auto px-10 py-4 rounded-3xl text-slate-500 bg-white/5 border border-white/5 hover:text-white hover:bg-white/10 transition-all font-black text-[10px] uppercase tracking-widest disabled:opacity-20"
         >
           Página Anterior
@@ -231,7 +262,7 @@ function LessonPageInner(props: { params: Promise<{ moduleId: string, lessonId: 
 
         {currentPageIdx < pages.length - 1 ? (
           <button
-            onClick={() => { setCurrentPageIdx(p => p + 1); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+            onClick={() => handlePageChange(currentPageIdx + 1)}
             className="w-full sm:w-auto px-14 py-4 rounded-3xl bg-[#006a62] text-white hover:bg-[#004d47] font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-[#006a62]/20 hover:scale-[1.05] transition-all"
           >
             Próxima Etapa

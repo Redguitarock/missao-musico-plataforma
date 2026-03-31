@@ -46,11 +46,11 @@ export default function EstudioCriacaoHub() {
                 <h1 className="text-2xl md:text-4xl font-bold text-white uppercase italic tracking-tighter">Estúdio de <span className="text-[#26A69A]">Criação</span>.</h1>
              </div>
 
-             <div className="bg-[#0b242e] p-1.5 rounded-[2rem] flex border border-white/5 shadow-2xl overflow-x-auto no-scrollbar max-w-full">
+             <div className="bg-[#0b242e] p-1.5 rounded-[2rem] flex border border-white/5 shadow-2xl overflow-x-auto custom-scrollbar max-w-full">
                 {[
                   { id: 'EBOOKS', name: 'Meus E-books (Builder)', icon: 'auto_stories' },
                   { id: 'QUIZZES', name: 'Estúdio de Quizzes', icon: 'psychology' },
-                  { id: 'TRILHAS', name: 'Engenharia de Trilhas', icon: 'map' },
+                  { id: 'TRILHAS', name: 'CONSTRUTOR DE TRILHAS', icon: 'map' },
                   { id: 'BIBLIOTECA', name: 'Biblioteca de Ativos', icon: 'library_books' }
                 ].map(tab => (
                    <button 

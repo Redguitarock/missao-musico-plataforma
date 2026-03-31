@@ -11,6 +11,8 @@ const STUDENT_MENU = [
   { name: 'Dashboard Aluno', href: '/home', icon: 'dashboard' },
   { name: 'Jornada Musical', href: '/jornada', icon: 'auto_stories' },
   { name: 'Diário Acadêmico', href: '/diario?mode=STUDENT', icon: 'menu_book' },
+  { name: 'Conteúdo de Aprimoramento', href: '/aprimoramento', icon: 'auto_fix_high' },
+  { name: 'Fique Ligado', href: '/eventos?mode=STUDENT', icon: 'campaign' },
   { name: 'Obter Ajuda (Mestres)', href: '/jornada/ajuda', icon: 'support_agent' },
   { name: 'Minhas Solicitações', href: '/jornada/ajuda/solicitacoes', icon: 'hub' },
 ]
@@ -22,7 +24,10 @@ const PROFESSIONAL_MENU = [
   { name: 'Identidade Digital', href: '/profissional/identidade', icon: 'badge' },
   CREATION_MENU, // Agora é uma constante compartilhada
   { name: 'Gestão de Alianças', href: '/profissional/mentorias', icon: 'diversity_3' },
-  { name: 'Trilhas de Estudo', href: '/profissional/trilhas', icon: 'map' },
+  { name: 'Construtor de Trilhas', href: '/profissional/trilhas', icon: 'map' },
+  { name: 'Aprimoramento Mestre', href: '/aprimoramento?mode=PROFESSIONAL', icon: 'auto_fix_high' },
+  { name: 'Newsletter Mestre', href: '/profissional/newsletter', icon: 'mail' },
+  { name: 'Fique Ligado', href: '/eventos?mode=PROFESSIONAL', icon: 'campaign' },
   { name: 'Diário Mestre', href: '/diario?mode=PROFESSIONAL', icon: 'menu_book' },
   { name: 'Capacitação', href: '/jornada?mode=PROFESSIONAL', icon: 'school' },
 ]
@@ -30,6 +35,8 @@ const PROFESSIONAL_MENU = [
 const ADMIN_MENU = [
   { name: 'Gestão Ecossistema', href: '/admin', icon: 'admin_panel_settings' },
   { name: 'Controle de Usuários', href: '/admin/usuarios', icon: 'group' },
+  { name: 'Biblioteca Global', href: '/admin/biblioteca', icon: 'library_books' },
+  { name: 'Campanhas & Avisos', href: '/eventos?mode=ADMIN', icon: 'campaign' },
   CREATION_MENU, // O Admin também cria conteúdos mestres para a plataforma
 ]
 

@@ -243,14 +243,18 @@ export default function ConstrutorTrilhasMestre({ user: propUser }: { user?: any
                           <button 
                             key={res.id} 
                             onClick={() => toggleStep(res)}
-                            className={`flex items-center gap-4 p-4 rounded-3xl border transition-all text-left ${isSelected ? 'bg-white text-black border-white shadow-xl scale-[1.02]' : 'bg-black/10 text-slate-600 border-white/5 hover:border-white/10'}`}
+                            className={`flex items-center gap-4 p-4 rounded-3xl border transition-all text-left ${isSelected ? 'bg-white text-black border-white shadow-xl scale-[1.02]' : 'bg-[#00151d] border-white/5 hover:border-white/20'}`}
                           >
-                             <span className="material-symbols-outlined text-sm">{res.type === 'PDF' ? 'description' : res.type === 'VIDEO' ? 'smart_display' : res.type === 'EBOOK' ? 'import_contacts' : res.type === 'QUIZ' ? 'psychology' : 'headphones'}</span>
-                             <div className="flex-1">
-                                <p className="text-[10px] font-bold uppercase tracking-tight truncate">{res.title}</p>
-                                <span className={`text-[7px] font-black px-2 py-0.5 rounded-full border ${isSelected ? 'border-black/50 text-black/50' : 'border-white/5 text-slate-800'} uppercase tracking-[2px]`}>{res.type}</span>
+                             <span className={`material-symbols-outlined text-sm ${isSelected ? 'text-[#26A69A]' : 'text-[#81f3e5]'}`}>
+                                {res.type === 'PDF' ? 'description' : res.type === 'VIDEO' ? 'smart_display' : res.type === 'EBOOK' ? 'import_contacts' : res.type === 'QUIZ' ? 'psychology' : 'headphones'}
+                             </span>
+                             <div className="flex-1 overflow-hidden">
+                                <p className={`text-[10px] font-black uppercase tracking-tight truncate ${isSelected ? 'text-black' : 'text-white'}`}>{res.title}</p>
+                                <span className={`text-[8px] font-black px-2 py-0.5 rounded-full border border-white/10 bg-white/5 text-[#26A69A] uppercase tracking-widest leading-none inline-block mt-1 ${isSelected ? 'border-black/20 text-black/40' : ''}`}>
+                                   {res.type}
+                                </span>
                              </div>
-                             {isSelected && <span className="material-symbols-outlined text-sm text-[#26A69A]">check_circle</span>}
+                             {isSelected && <span className="material-symbols-outlined text-xl text-[#26A69A]">check_circle</span>}
                           </button>
                         )
                       })}

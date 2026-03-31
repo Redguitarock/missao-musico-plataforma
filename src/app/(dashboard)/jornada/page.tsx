@@ -1,51 +1,71 @@
+import { createClient } from '@/lib/supabase/server'
 import Link from "next/link"
 
-const JOURNEY_MODULES = [
-  {
-    id: 1,
-    title: 'Introdução à Psicanálise para Músicos',
-    description: 'Diagnóstico terapêutico inicial para reconhecer suas travas de desempenho.',
-    status: 'active',
-    isMandatory: true,
-    image: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=1470&auto=format&fit=crop'
-  },
-  {
-    id: 2,
-    title: 'Ego e Instrumento: A linha Tênue',
-    description: 'Separando sua identidade pessoal do seu resultado técnico para recuperar a essência.',
-    status: 'locked',
-    image: 'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?q=80&w=1470&auto=format&fit=crop'
-  },
-  {
-    id: 3,
-    title: 'Neuroplasticidade na Prática',
-    description: 'Recodificando os caminhos neurais para focar no fluxo, não no erro.',
-    status: 'locked',
-    image: 'https://images.unsplash.com/photo-1516280440502-86119b48c2e6?q=80&w=1470&auto=format&fit=crop'
-  },
-  {
-    id: 4,
-    title: 'O Silêncio entre as Notas',
-    description: 'Explore como as pausas e o silêncio intencional regulam o sistema nervoso e aprofundam a percepção musical.',
-    status: 'locked',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCFq8eYx2NCZHaw721M0hcpnOP6YQUs3WAUQEb0jFA07tIXGqPRBE0_iXt8k2t9KhErgr2sS3VwAEYxBUrvFYXQ_X1RUwJk283fPR1053ZGvf0h6aFEyzvfPz-5ZPIv9NJhrSJmzmY-6aebVesy48j1HcSlwJ7iLvU82bNPWs1KZLZ3xjUb_tYsg7-cudpAGl5stTeDPlqUVJh_YDLqgJUDLDv4MxALLu9AshQOsa4I7INkSo59mJiOoUXyQ25X7RCKhxxKk9od_zs'
-  },
-  {
-    id: 5,
-    title: 'Performance Sem Máscaras',
-    description: 'Integrando a psique curada no palco e no estúdio. A fluidez como estado padrão.',
-    status: 'locked',
-    image: 'https://images.unsplash.com/photo-1470229722913-7c092bb840ba?q=80&w=1339&auto=format&fit=crop'
-  }
-]
+  // ... (keeping the same array as before but we'll use it to map status)
 
-export default function JornadaPage() {
+export default async function JornadaPage() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  const { data: progress } = await supabase
+    .from('user_progress')
+    .select('*')
+    .eq('user_id', user?.id)
+    .single()
+
+  const currentModule = progress?.module_id || 1
+  const continueUrl = progress 
+    ? `/jornada/${progress.module_id}/aula/${progress.lesson_id}?page=${progress.last_page}`
+    : `/jornada/1`
+
+  const modules = [
+    {
+      id: 1,
+      title: 'Introdução à Psicanálise para Músicos',
+      description: 'Diagnóstico terapêutico inicial para reconhecer suas travas de desempenho.',
+      status: currentModule === 1 ? 'active' : currentModule > 1 ? 'completed' : 'locked',
+      isMandatory: true,
+      image: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=1470&auto=format&fit=crop'
+    },
+    {
+      id: 2,
+      title: 'Ego e Instrumento: A linha Tênue',
+      description: 'Separando sua identidade pessoal do seu resultado técnico para recuperar a essência.',
+      status: currentModule === 2 ? 'active' : currentModule > 2 ? 'completed' : 'locked',
+      image: 'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?q=80&w=1470&auto=format&fit=crop'
+    },
+    {
+      id: 3,
+      title: 'Neuroplasticidade na Prática',
+      description: 'Recodificando os caminhos neurais para focar no fluxo, não no erro.',
+      status: currentModule === 3 ? 'active' : currentModule > 3 ? 'completed' : 'locked',
+      image: 'https://images.unsplash.com/photo-1516280440502-86119b48c2e6?q=80&w=1470&auto=format&fit=crop'
+    },
+    {
+      id: 4,
+      title: 'O Silêncio entre as Notas',
+      description: 'Explore como as pausas e o silêncio intencional regulam o sistema nervoso e aprofundam a percepção musical.',
+      status: currentModule === 4 ? 'active' : currentModule > 4 ? 'completed' : 'locked',
+      image: 'https://images.unsplash.com/photo-1516280440502-86119b48c2e6?q=80&w=1470&auto=format&fit=crop'
+    },
+    {
+      id: 5,
+      title: 'Performance Sem Máscaras',
+      description: 'Integrando a psique curada no palco e no estúdio. A fluidez como estado padrão.',
+      status: currentModule === 5 ? 'active' : currentModule > 5 ? 'completed' : 'locked',
+      image: 'https://images.unsplash.com/photo-1470229722913-7c092bb840ba?q=80&w=1339&auto=format&fit=crop'
+    }
+  ]
+
   return (
     <>
-      <header className="mb-12 md:mb-16 pt-16 md:pt-0">
-        <h2 className="text-3xl md:text-4xl font-headline font-bold text-primary tracking-tight">Trilha de Evolução</h2>
-        <p className="text-on-primary-container mt-2 text-base md:text-lg font-light">
-          Acompanhe seu avanço pela ressonância terapêutica. Módulos são liberados de acordo com sua introspecção.
+      <header className="mb-14 md:mb-20 pt-16 md:pt-0">
+        <div className="inline-flex px-5 py-2 rounded-full bg-[#26A69A]/10 border border-[#26A69A]/20 text-[#26A69A] text-[10px] font-black uppercase tracking-[0.3em] italic mb-4">
+           Mapeamento Sináptico de Evolução
+        </div>
+        <h2 className="text-4xl md:text-7xl font-headline font-bold text-white tracking-tighter italic uppercase leading-none">Trilha de <span className="text-[#26A69A]">Evolução</span>.</h2>
+        <p className="text-slate-500 mt-6 text-base md:text-xl font-light italic max-w-3xl">
+          Acompanhe seu avanço pela ressonância terapêutica. Módulos são liberados de acordo com sua introspecção e profundidade de estudo.
         </p>
       </header>
 
@@ -55,8 +75,8 @@ export default function JornadaPage() {
           <div className="w-full bg-[#006a62] h-[25%] shadow-[0_0_15px_rgba(0,106,98,0.5)]"></div>
         </div>
 
-        <div className="space-y-8 md:space-y-12 relative">
-          {JOURNEY_MODULES.map((modulo, idx) => (
+        <div className="space-y-8 md:space-y-12 relative text-left">
+          {modules.map((modulo, idx) => (
             <div key={modulo.id} className="flex flex-col md:flex-row gap-6 md:gap-10 group relative pl-16 md:pl-24">
               
               {/* Timeline marker */}
@@ -109,12 +129,27 @@ export default function JornadaPage() {
                 <h3 className={`text-xl md:text-2xl font-bold font-headline mb-3 ${modulo.status === 'locked' ? 'text-slate-500' : 'text-primary'}`}>
                   {modulo.title}
                 </h3>
-                <p className="text-on-surface-variant text-sm leading-relaxed mb-6">
+                <p className="text-on-surface-variant text-sm leading-relaxed mb-4">
                   {modulo.description}
                 </p>
 
+                {modulo.status === 'active' && progress && (
+                  <div className="mb-6 space-y-1.5 max-w-[200px]">
+                     <div className="flex justify-between items-center text-[10px] font-black uppercase text-[#26A69A]">
+                        <span>Progresso no Módulo</span>
+                        <span>{progress.progress_percent}%</span>
+                     </div>
+                     <div className="w-full bg-white/5 rounded-full h-1 overflow-hidden">
+                        <div className="bg-[#26A69A] h-1 rounded-full shadow-[0_0_10px_#26A69A]" style={{ width: `${progress.progress_percent}%` }} />
+                     </div>
+                  </div>
+                )}
+
                 {modulo.status === 'active' && (
-                  <Link href={`/jornada/${modulo.id}`} className="bg-[#006a62] text-white px-6 py-2.5 rounded-full text-sm font-bold flex items-center justify-center gap-2 hover:bg-[#00504a] transition-colors w-max">
+                  <Link 
+                    href={progress ? `/jornada/${progress.module_id}/aula/${progress.lesson_id}?page=${progress.last_page}` : `/jornada/${modulo.id}`} 
+                    className="bg-[#006a62] text-white px-6 py-2.5 rounded-full text-sm font-bold flex items-center justify-center gap-2 hover:bg-[#00504a] transition-colors w-max shadow-lg shadow-[#006a62]/20"
+                  >
                     Continuar Estudos
                     <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
                   </Link>
