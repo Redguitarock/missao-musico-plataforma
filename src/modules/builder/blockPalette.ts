@@ -106,17 +106,16 @@ export const BLOCK_DEFINITIONS: BlockDefinition[] = [
   },
   {
     type: 'interactive_quiz',
-    label: 'Quiz / Reflexão',
+    label: 'Quiz Diagnóstico V2',
     icon: 'psychology',
-    description: 'Pergunta reflexiva interativa',
+    description: 'Diagnóstico comportamental',
     defaultValue: () => ({
       id: uid('qz'), type: 'interactive_quiz',
-      question: 'Qual é a sua reflexão sobre este tópico?',
-      options: [
-        { id: 'o1', label: 'Opção A' },
-        { id: 'o2', label: 'Opção B' },
-        { id: 'o3', label: 'Opção C' },
-      ],
+      title: 'Meu Quizz Diagnóstico',
+      description: 'Responda com sinceridade.',
+      category: 'DIAGNÓSTICO',
+      weight_categories: ['Ansiedade', 'Medo'],
+      questions: [],
     }),
   },
   {

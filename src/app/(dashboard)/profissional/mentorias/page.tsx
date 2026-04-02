@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { createBrowserClient } from '@supabase/ssr'
+import Link from 'next/link'
 
 interface Mentorship {
   id: string
@@ -14,6 +15,12 @@ interface Mentorship {
     full_name: string
     social_name: string
     avatar_url: string
+  }
+  metadata?: {
+    permissions?: {
+      paths?: string[]
+      assets?: string[]
+    }
   }
 }
 
@@ -67,34 +74,77 @@ export default function GestaoMentoriasMestre() {
   const handleReleaseContent = async (itemId: string, itemType: 'PATH' | 'ASSET') => {
     if (!releasingTo) return
     
-    // Busca permissões atuais
-    const { data: current } = await supabase.from('mentorships').select('permissions').eq('id', releasingTo.id).single()
-    const permissions = current?.permissions || { ebooks: [], videos: [], paths: [] }
+    setToast('Transmitindo rota para o paciente...')
     
-    // Adiciona o novo ID se não existir
-    if (itemType === 'PATH') {
-      if (!permissions.paths) permissions.paths = []
-      if (!permissions.paths.includes(itemId)) permissions.paths.push(itemId)
-    } else {
-       if (!permissions.assets) permissions.assets = []
-       if (!permissions.assets.includes(itemId)) permissions.assets.push(itemId)
-    }
+    try {
+       const res = await fetch('/api/mentorias/liberar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+             mentorshipId: releasingTo.id,
+             itemId,
+             itemType
+          })
+       })
 
-    const { error } = await supabase.from('mentorships').update({ permissions }).eq('id', releasingTo.id)
+       if (!res.ok) {
+          try {
+             const errJson = await res.json()
+             console.error("Central API Error:", errJson)
+             setToast(`Erro API: ${errJson.details?.message || errJson.error || 'Server Reject'}`)
+             throw new Error('Server_Rejected') // skip bottom catch
+          } catch(e: any) {
+             if (e.message !== 'Server_Rejected') throw new Error('Falha na comunicação central.')
+          }
+       } else {
+          const json = await res.json()
+          if (json.success === false) {
+             setToast(json.message || 'Erro na operação.')
+          } else {
+             const isLiberated = json.isNowLiberated
+             setToast(isLiberated ? 'Material Liberado para o Aluno! 🔐' : 'Acesso Revogado com Sucesso! 🚫')
+             
+             // Update local state for immediate feedback
+             const currentPaths = releasingTo.metadata?.permissions?.paths || []
+             const currentAssets = releasingTo.metadata?.permissions?.assets || []
+             
+             const newMetadata = {
+               ...releasingTo.metadata,
+               permissions: {
+                 ...(releasingTo.metadata?.permissions || {}),
+                 paths: itemType === 'PATH' 
+                        ? (isLiberated ? [...currentPaths, itemId] : currentPaths.filter(id => id !== itemId)) 
+                        : currentPaths,
+                 assets: itemType === 'ASSET' 
+                         ? (isLiberated ? [...currentAssets, itemId] : currentAssets.filter(id => id !== itemId)) 
+                         : currentAssets
+               }
+             }
 
-    if (!error) {
-       setToast('Material Liberado para o Aluno! 🔐')
-       setTimeout(() => setToast(null), 3000)
+             const updatedMentorship = { ...releasingTo, metadata: newMetadata }
+             setReleasingTo(updatedMentorship)
+             setMentorships(prev => prev.map(m => m.id === releasingTo.id ? updatedMentorship : m))
+          }
+       }
+    } catch (e: any) {
+       if (e.message !== 'Server_Rejected') {
+          console.error("Network/Client Error:", e)
+          setToast('Erro de Sincronização Server.')
+       }
     }
+    
+    setTimeout(() => setToast(null), 3000)
   }
 
   const updateStatus = async (id: string, newStatus: string) => {
+    setLoading(true)
     const { error } = await supabase.from('mentorships').update({ status: newStatus }).eq('id', id)
     if (!error) {
        setToast(newStatus === 'ACTIVE' ? 'Aliança Ativada! 🤝' : 'Mentoria Finalizada! 🏅')
-       loadMentorships()
+       await loadMentorships()
        setTimeout(() => setToast(null), 3000)
     }
+    setLoading(false)
   }
 
   if (loading) return <div className="p-20 text-center animate-pulse text-[#26A69A] font-black uppercase tracking-[0.5em] text-xs leading-none">Acessando mapa de alianças...</div>
@@ -155,6 +205,10 @@ export default function GestaoMentoriasMestre() {
                          </div>
                       </div>
                       <div className="flex items-center gap-4">
+                         <Link href={`/profissional/mentorias/${m.student_id}`} className="px-6 py-3.5 bg-[#26A69A]/10 text-[#26A69A] rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-[#26A69A]/20 transition-all border border-[#26A69A]/30 italic flex items-center gap-2">
+                            <span className="material-symbols-outlined text-sm">dashboard</span>
+                            Panorama Diagnóstico
+                         </Link>
                          <button 
                            onClick={() => { setReleasingTo(m); loadReleaseOptions(); }}
                            className="px-6 py-3.5 bg-white/5 text-slate-400 rounded-2xl text-[9px] font-black uppercase tracking-widest hover:text-white transition-all border border-transparent hover:border-white/10 italic flex items-center gap-2"
@@ -192,12 +246,19 @@ export default function GestaoMentoriasMestre() {
                       <div className="space-y-6">
                          <h4 className="text-[9px] font-black uppercase text-[#26A69A] tracking-[0.4em] italic leading-none border-b border-white/5 pb-4">Suas Trilhas</h4>
                          <div className="space-y-3">
-                            {trilhas.map(t => (
-                               <button key={t.id} onClick={() => handleReleaseContent(t.id, 'PATH')} className="w-full p-6 bg-black/20 rounded-3xl border border-white/5 text-left group hover:border-[#26A69A]/40 transition-all flex items-center justify-between">
-                                  <span className="text-white text-[11px] font-bold uppercase">{t.title}</span>
-                                  <span className="material-symbols-outlined text-slate-700 group-hover:text-[#26A69A]">shortcut</span>
-                               </button>
-                            ))}
+                            {trilhas.map(t => {
+                               const hasPath = releasingTo.metadata?.permissions?.paths?.includes(t.id) || false;
+                               return (
+                                  <button key={t.id} onClick={() => handleReleaseContent(t.id, 'PATH')} className={`w-full p-6 bg-black/20 rounded-3xl border border-white/5 text-left transition-all flex items-center justify-between ${hasPath ? 'opacity-50 border-[#26A69A]/30 hover:opacity-100' : 'group hover:border-[#26A69A]/40'}`}>
+                                     <span className={`text-[11px] font-bold uppercase ${hasPath ? 'text-[#26A69A]' : 'text-white'}`}>{t.title}</span>
+                                     {hasPath ? (
+                                        <span className="text-[#26A69A] text-[9px] font-black tracking-widest group-hover:text-red-400">LIBERADO ✅</span>
+                                     ) : (
+                                        <span className="material-symbols-outlined text-slate-700 group-hover:text-[#26A69A]">shortcut</span>
+                                     )}
+                                  </button>
+                               )
+                            })}
                          </div>
                       </div>
 
@@ -205,15 +266,22 @@ export default function GestaoMentoriasMestre() {
                       <div className="space-y-6">
                          <h4 className="text-[9px] font-black uppercase text-[#26A69A] tracking-[0.4em] italic leading-none border-b border-white/5 pb-4">Arquivos da Biblioteca</h4>
                          <div className="space-y-3">
-                            {assets.map(a => (
-                               <button key={a.id} onClick={() => handleReleaseContent(a.id, 'ASSET')} className="w-full p-6 bg-black/20 rounded-3xl border border-white/5 text-left group hover:border-[#26A69A]/40 transition-all flex items-center justify-between">
-                                  <div className="space-y-1">
-                                     <span className="text-white text-[10px] font-bold uppercase leading-none block">{a.title}</span>
-                                     <span className="text-slate-700 text-[8px] font-black">{a.type}</span>
-                                  </div>
-                                  <span className="material-symbols-outlined text-slate-700 group-hover:text-[#26A69A]">add</span>
-                               </button>
-                            ))}
+                            {assets.map(a => {
+                               const hasAsset = releasingTo.metadata?.permissions?.assets?.includes(a.id) || false;
+                               return (
+                                  <button key={a.id} onClick={() => handleReleaseContent(a.id, 'ASSET')} className={`w-full p-6 bg-black/20 rounded-3xl border border-white/5 text-left transition-all flex items-center justify-between ${hasAsset ? 'opacity-50 border-[#26A69A]/30 hover:opacity-100' : 'group hover:border-[#26A69A]/40'}`}>
+                                     <div className="space-y-1">
+                                        <span className={`text-[10px] font-bold uppercase leading-none block ${hasAsset ? 'text-[#26A69A]' : 'text-white'}`}>{a.title}</span>
+                                        <span className="text-slate-700 text-[8px] font-black">{a.type}</span>
+                                     </div>
+                                     {hasAsset ? (
+                                        <span className="text-[#26A69A] text-[9px] font-black tracking-widest group-hover:text-red-400">LIBERADO ✅</span>
+                                     ) : (
+                                        <span className="material-symbols-outlined text-slate-700 group-hover:text-[#26A69A]">add</span>
+                                     )}
+                                  </button>
+                               )
+                            })}
                          </div>
                       </div>
 

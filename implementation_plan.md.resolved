@@ -1,0 +1,72 @@
+# Arquitetura do Sistema Híbrido de Quizzes Comportamentais (V2 - Strict Relational)
+
+## Objetivo e Estratégia de Migração (Non-Breaking)
+Este sistema implementa um diagnóstico comportamental avançado e híbrido (qualitativo + quantitativo) isolado do legado.
+- **Regra de Ouro:** Funcionalidades e tabelas antigas (`quizzes` atual) manterão seu funcionamento e formato JSON em estado **READ-ONLY**. 
+- **Modelo V2:** Uma arquitetura estritamente relacional lidará com as novas criações. Dados novos e velhos não se misturarão no diagnóstico.
+
+---
+
+## 1. Modelo de Dados (Supabase PostgreSQL)
+
+### 1.1 Quizzes (Com Versionamento)
+- **`v2_quizzes`**: `id`, `title`, `description`, `category`, `professional_id`, `version` (int), `is_active` (boolean), `created_at`
+- **`v2_quiz_questions`**: `id`, `quiz_id`, `type` (`multiple_choice` | `text`), `text`, `order_index`
+- **`v2_quiz_question_options`**: `id`, `question_id`, `text`, `weight_key`, `weight_value` (int)
+
+### 1.2 Perfis de Peso (Normalizado)
+- **`v2_weight_profiles`**: `id`, `module_id`
+- **`v2_weight_profile_keys`**: `id`, `profile_id`, `key` (ex: ansiedade, medo, euforia)
+
+### 1.3 Mapeamento de Módulos
+- **`v2_module_quizzes`**: `id`, `module_id`, `quiz_id`, `quiz_version`, `weight_profile_id`
+
+### 1.4 Respostas do Usuário
+- **`v2_user_quiz_responses`**: `id`, `user_id`, `module_quiz_id`, `quiz_version`, `status` (`in_progress` | `completed`), `created_at`
+- **`v2_user_answers`**: `id`, `response_id`, `question_id`, `option_id` (nullable), `text_response` (nullable), `weight_applied` (json snapshot)
+
+### 1.5 Resultado por Módulo (Diagnóstico Crítico)
+- **`v2_module_results`**: `id`, `user_id`, `module_id`, `created_at`
+- **`v2_diagnostic_results`**: `id`, `module_result_id`, `dominant_category`, `secondary_category`, `behavioral_profile`, `intensities` (jsonb), `global_score` (0-100), `short_term_trend` (`increase` | `decrease` | `stable`), `long_term_trend` (`increase` | `decrease` | `stable`)
+
+### 1.6 Insights e Anotações Inteligentes
+- **`v2_insights`**: `id`, `patient_id`, `module_id`, `type` (pattern, alert, evolution), `description`, `severity` (`low` | `medium` | `high`), `created_at`
+- **`v2_professional_notes`**: `id`, `professional_id`, `patient_id`, `module_id`, `content`, `tags` (jsonb ou text[]), `linked_insight_id` (nullable), `created_at`
+
+---
+
+## 2. Motor de Diagnóstico (Pipeline)
+Rodará unicamente quando todos os quizzes de um módulo atingirem `status = completed`.
+
+1. **Agregação:** Somatório de `weight_value` agrupado por `weight_key`.
+2. **Normalização:** `(Soma da Categoria / Soma Total de Pesos Selecionados) * 100` para extrair percentuais relativos.
+3. **Ordenação:** Categoria com maior percentual (`dominant_category`), seguida pela segunda maior (`secondary_category`).
+4. **Global Score:** Cálculo ponderado geral de gravidade/intensidade (0 a 100).
+5. **Classificação:** Definição do `behavioral_profile` via cruzamento da Dominante + Secundária.
+6. **Tendência Temporal:**
+   - *Short-Term:* Delta do `global_score` ou `dominant_category` comparado exatamente ao módulo anterior.
+   - *Long-Term:* Delta comparado à média de todos os módulos históricos do usuário.
+
+---
+
+## 3. Motor de Insights (Rules-Based)
+As regras serão desacopladas e processadas em cascata sobre as `intensities` e as respostas cruas (`user_answers`). 
+Alertas de `severity = high` engatilham prioridade no topo do Dashboard.
+
+---
+
+## 4. Dashboard Orientado à Decisão (UX/UI Data Flow)
+A visão do paciente respeitará a seguinte hierarquia rigorosa:
+1. **Alertas Críticos** (Vermelho/Ação urgente)
+2. **Diagnóstico Atual** (Perfil + Categorias)
+3. **Evolução** (Gráficos de Tendência Short/Long Term)
+4. **Gráfico de Intensidades** (Polar/Radar de áreas afetadas)
+5. **Respostas Quantitativas** (Tabela com dados de peso engatilhados)
+6. **Respostas Qualitativas** (Discursivas puras, type = text)
+7. **Anotações Relevantes do Profissional**
+8. **Ações Rápidas** (Ex: Adicionar Trilha)
+
+---
+
+## Próximos Passos de Execução
+Em posse dessas definições, moveremos para o código! Executaremos o SQL base, serviços, rotas completas e interfaces.

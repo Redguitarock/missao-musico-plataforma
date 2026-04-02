@@ -9,8 +9,9 @@ import Image from 'next/image'
 
 const STUDENT_MENU = [
   { name: 'Dashboard Aluno', href: '/home', icon: 'dashboard' },
-  { name: 'Jornada Musical', href: '/jornada', icon: 'auto_stories' },
+  { name: 'Trilha de Evolução', href: '/jornada', icon: 'auto_stories' },
   { name: 'Diário Acadêmico', href: '/diario?mode=STUDENT', icon: 'menu_book' },
+  { name: 'Conteúdo Compartilhado', href: '/compartilhados', icon: 'folder_shared' },
   { name: 'Conteúdo de Aprimoramento', href: '/aprimoramento', icon: 'auto_fix_high' },
   { name: 'Fique Ligado', href: '/eventos?mode=STUDENT', icon: 'campaign' },
   { name: 'Obter Ajuda (Mestres)', href: '/jornada/ajuda', icon: 'support_agent' },
@@ -143,10 +144,10 @@ export default function Sidebar({ userRoles }: { userRoles: string[] }) {
                <h3 className="text-[9px] font-bold text-slate-700 uppercase tracking-[0.4em] px-4 italic mb-3 text-[#81f3e5]">Estudante</h3>
                <div className="space-y-2">
                   {STUDENT_MENU.map(item => (
-                    <Link key={item.name} href={item.href} className={`flex items-center gap-4 px-5 py-4 rounded-2xl transition-all border ${isItemActive(item.href) ? 'bg-[#81f3e5]/10 text-[#81f3e5] border-[#81f3e5]/30 shadow-lg' : 'text-slate-400 border-white/5 hover:text-white hover:bg-white/5'}`}>
+                    <a key={item.name} href={item.href} className={`flex items-center gap-4 px-5 py-4 rounded-2xl transition-all border ${isItemActive(item.href) ? 'bg-[#81f3e5]/10 text-[#81f3e5] border-[#81f3e5]/30 shadow-lg' : 'text-slate-400 border-white/5 hover:text-white hover:bg-white/5'}`}>
                        <span className="material-symbols-outlined text-xl">{item.icon}</span>
                        <span className="text-xs font-bold uppercase tracking-widest leading-none">{item.name}</span>
-                    </Link>
+                    </a>
                   ))}
                </div>
             </motion.div>

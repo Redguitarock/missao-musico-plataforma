@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
+import { createBrowserClient } from '@supabase/ssr'
 import type {
   ContentBlock,
   TextBlock,
@@ -164,44 +165,157 @@ export function RenderIconCards({ block }: { block: IconCardsBlock }) {
 // ── Interactive Quiz ─────────────────────────────────────
 
 export function RenderQuiz({ block }: { block: QuizBlock }) {
-  const [selected, setSelected] = useState<string | null>(null)
-  return (
-    <div className="mt-14 bg-surface-container border border-outline-variant/30 rounded-3xl p-6 md:p-10">
-      <div className="flex items-center gap-3 mb-6">
-        <span className="material-symbols-outlined text-[#26A69A]">psychology</span>
-        <h3 className="text-xl font-headline font-bold text-[#81f3e5]">Reflexão Ativa</h3>
-      </div>
-      <p className="font-medium text-white mb-6 text-lg">{block.question}</p>
-      <div className="space-y-3">
-        {block.options.map((opt) => {
-          const isSelected = selected === opt.id
-          return (
-            <button
-              key={opt.id}
-              onClick={() => setSelected(opt.id)}
-              className={`w-full text-left p-4 rounded-xl border transition-all ${
-                isSelected
-                  ? 'bg-[#26A69A]/20 border-[#81f3e5] text-white shadow-[0_0_15px_rgba(129,243,229,0.2)]'
-                  : 'bg-surface border-white/10 text-slate-400 hover:border-white/30 hover:bg-white/5'
-              }`}
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({})
+  const [submitting, setSubmitting] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
+
+  const isV2 = block.questions && block.questions.length > 0
+  const legacySelected = selectedOptions['legacy']
+  
+  const handleSaveV2 = async () => {
+     if (!block.quiz_id) {
+        alert("Este diagnóstico não está vinculado a um Estúdio V2.")
+        return
+     }
+     setSubmitting(true)
+     const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+     )
+     const { data: { user } } = await supabase.auth.getUser()
+     if (!user) {
+        setSubmitting(false)
+        return
+     }
+
+     const { data: responseData } = await supabase.from('v2_user_quiz_responses').insert({
+        user_id: user.id,
+        quiz_version: 1,
+        status: 'completed'
+     }).select('id').single()
+
+     if (responseData?.id) {
+        const answersToInsert = block.questions?.map(q => {
+           const ansOptId = selectedOptions[q.id]
+           let weightApplied = null
+           if (ansOptId) {
+              const opt = q.options?.find(o => o.id === ansOptId)
+              if (opt) weightApplied = { weight_key: opt.weight_key, weight_value: opt.weight_value }
+           }
+           return {
+              response_id: responseData.id,
+              question_id: q.id,
+              option_id: ansOptId || null,
+              weight_applied: weightApplied
+           }
+        }).filter(a => a.option_id) || []
+
+        if (answersToInsert.length > 0) {
+           await supabase.from('v2_user_answers').insert(answersToInsert)
+        }
+     }
+     setSubmitting(false)
+     setSubmitted(true)
+  }
+
+  if (!isV2) {
+     if (!block.options) return null
+     return (
+        <div className="mt-14 bg-surface-container border border-outline-variant/30 rounded-3xl p-6 md:p-10">
+          <div className="flex items-center gap-3 mb-6">
+            <span className="material-symbols-outlined text-[#26A69A]">psychology</span>
+            <h3 className="text-xl font-headline font-bold text-[#81f3e5]">Reflexão Ativa</h3>
+          </div>
+          <p className="font-medium text-white mb-6 text-lg">{block.question}</p>
+          <div className="space-y-3">
+            {block.options.map((opt) => {
+              const isSelected = legacySelected === opt.id
+              return (
+                <button
+                  key={opt.id}
+                  onClick={() => setSelectedOptions({ legacy: opt.id })}
+                  className={`w-full text-left p-4 rounded-xl border transition-all ${
+                    isSelected
+                      ? 'bg-[#26A69A]/20 border-[#81f3e5] text-white shadow-[0_0_15px_rgba(129,243,229,0.2)]'
+                      : 'bg-surface border-white/10 text-slate-400 hover:border-white/30 hover:bg-white/5'
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${isSelected ? 'border-[#81f3e5]' : 'border-slate-500'}`}>
+                      {isSelected && <div className="w-2.5 h-2.5 bg-[#81f3e5] rounded-full" />}
+                    </div>
+                    {opt.label || opt.text}
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+          {legacySelected && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              className="mt-6 p-4 bg-[#81f3e5]/10 rounded-xl text-sm text-[#81f3e5] border border-[#81f3e5]/20"
             >
-              <div className="flex items-center gap-4">
-                <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${isSelected ? 'border-[#81f3e5]' : 'border-slate-500'}`}>
-                  {isSelected && <div className="w-2.5 h-2.5 bg-[#81f3e5] rounded-full" />}
-                </div>
-                {opt.label}
-              </div>
-            </button>
-          )
-        })}
+              Sua resposta foi salva.
+            </motion.div>
+          )}
+        </div>
+     )
+  }
+
+  return (
+    <div className="mt-14 bg-surface-container border border-[#26A69A]/30 rounded-3xl p-6 md:p-10 shadow-[0_0_40px_rgba(38,166,154,0.05)]">
+      <div className="flex items-center gap-3 mb-4 border-b border-white/5 pb-4">
+        <span className="material-symbols-outlined text-[#26A69A]">psychology</span>
+        <div>
+           <h3 className="text-xl font-headline font-bold text-[#81f3e5] leading-none mb-1">{block.title || 'Diagnóstico'}</h3>
+           {block.description && <p className="text-slate-400 text-xs italic">{block.description}</p>}
+        </div>
       </div>
-      {selected && (
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: 'auto' }}
-          className="mt-6 p-4 bg-[#81f3e5]/10 rounded-xl text-sm text-[#81f3e5] border border-[#81f3e5]/20"
+      
+      <div className="space-y-10 mt-8">
+        {block.questions?.map((q, qIdx) => (
+           <div key={q.id} className="space-y-4">
+              <p className="font-bold text-white text-lg"><span className="text-[#26A69A] mr-2">{qIdx + 1}.</span>{q.text}</p>
+              <div className="space-y-2">
+                 {q.options?.map(opt => {
+                    const isSelected = selectedOptions[q.id] === opt.id
+                    return (
+                      <button
+                        key={opt.id}
+                        onClick={() => setSelectedOptions({...selectedOptions, [q.id]: opt.id})}
+                        className={`w-full text-left p-4 rounded-xl border transition-all ${
+                          isSelected
+                            ? 'bg-[#26A69A]/20 border-[#81f3e5] text-white shadow-[0_0_15px_rgba(129,243,229,0.2)]'
+                            : 'bg-surface border-white/10 text-slate-400 hover:border-white/30 hover:bg-white/5'
+                        }`}
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${isSelected ? 'border-[#81f3e5]' : 'border-slate-500'}`}>
+                            {isSelected && <div className="w-2.5 h-2.5 bg-[#81f3e5] rounded-full" />}
+                          </div>
+                          {opt.text || opt.label}
+                        </div>
+                      </button>
+                    )
+                 })}
+              </div>
+           </div>
+        ))}
+      </div>
+      
+      {!submitted ? (
+        <button 
+           onClick={handleSaveV2} 
+           disabled={submitting || Object.keys(selectedOptions).length < (block.questions?.length || 0)}
+           className="mt-10 bg-[#26A69A] text-white px-6 py-4 w-full md:w-auto rounded-full font-black uppercase tracking-widest text-[10px] shadow-[0_10px_30px_rgba(38,166,154,0.3)] hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:hover:scale-100"
         >
-          Sua resposta foi salva. Isso nos ajudará a diagnosticar seus focos de bloqueio na música.
+           {submitting ? 'PROCESSANDO...' : 'REGISTRAR ESCOLHAS DIAGNÓSTICAS'}
+        </button>
+      ) : (
+        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-8 p-4 bg-[#81f3e5]/10 rounded-xl border border-[#81f3e5]/20 flex items-center gap-3">
+           <span className="material-symbols-outlined text-[#81f3e5]">check_circle</span>
+           <p className="text-[#81f3e5] text-sm font-bold">Diagnóstico processado e transmitido ao seu Mestre/Plataforma com sucesso!</p>
         </motion.div>
       )}
     </div>

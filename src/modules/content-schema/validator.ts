@@ -50,8 +50,10 @@ function validateBlock(block: unknown, path: string): string[] {
       if (!Array.isArray(b.cards)) errors.push(`${path}: 'cards' must be an array`)
       break
     case 'interactive_quiz':
-      if (typeof b.question !== 'string') errors.push(`${path}: 'question' must be a string`)
-      if (!Array.isArray(b.options)) errors.push(`${path}: 'options' must be an array`)
+      // V2 support: either legacy question/options or V2 title/questions
+      if (!b.question && !b.questions && !b.quiz_id) {
+         errors.push(`${path}: 'interactive_quiz' must have 'question', 'questions' or 'quiz_id'`)
+      }
       break
     case 'interactive_circle':
       if (!Array.isArray(b.items)) errors.push(`${path}: 'items' must be an array`)

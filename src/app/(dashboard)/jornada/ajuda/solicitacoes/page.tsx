@@ -17,6 +17,12 @@ interface Mentorship {
     avatar_url: string
     professional_category: string
   }
+  metadata?: {
+    permissions?: {
+      paths?: string[]
+      assets?: string[]
+    }
+  }
 }
 
 export default function MinhasSolicitacoesAluno() {
@@ -130,19 +136,36 @@ export default function MinhasSolicitacoesAluno() {
                             <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest mb-1 italic">Modalidade</p>
                             <p className="text-white font-bold text-xs uppercase">{m.service_type}</p>
                          </div>
-                         <button className="h-full bg-[#81f3e5] text-[#00151d] rounded-3xl font-black uppercase text-[10px] tracking-widest hover:scale-[1.05] transition-all flex items-center justify-center gap-2">
+                         <a href="/jornada" className="h-full bg-[#81f3e5] text-[#00151d] rounded-3xl font-black uppercase text-[10px] tracking-widest hover:scale-[1.05] transition-all flex items-center justify-center gap-2 p-4 text-center">
                             Acessar Central Mestre
                             <span className="material-symbols-outlined">chevron_right</span>
-                         </button>
+                         </a>
                       </div>
                       
                       {/* ÁREA DE MATERIAL LIBERADO (PREVIEW) */}
                       <div className="pt-6 border-t border-white/5">
                          <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest italic mb-4">Materiais Liberados pelo Mestre:</p>
-                         <div className="flex gap-4">
-                            <div className="w-full h-12 bg-white/5 rounded-2xl flex items-center justify-center opacity-20 border border-white/5">
-                               <span className="text-[9px] font-bold uppercase tracking-widest italic opacity-50">Nenhum material extra liberado ainda</span>
-                            </div>
+                         <div className="flex gap-4 flex-wrap">
+                            {(!m.metadata?.permissions?.paths?.length && !m.metadata?.permissions?.assets?.length) ? (
+                               <div className="w-full h-12 bg-white/5 rounded-2xl flex items-center justify-center opacity-20 border border-white/5">
+                                  <span className="text-[9px] font-bold uppercase tracking-widest italic opacity-50">Nenhum material extra liberado ainda</span>
+                               </div>
+                            ) : (
+                               <>
+                                  {(m.metadata?.permissions?.paths?.length || 0) > 0 && (
+                                     <a href="/jornada" className="px-5 py-3 bg-[#26A69A]/10 text-[#26A69A] border border-[#26A69A]/30 rounded-2xl flex items-center gap-2 hover:bg-[#26A69A]/20 transition-all font-black text-[9px] uppercase tracking-widest">
+                                        <span className="material-symbols-outlined text-sm">auto_stories</span>
+                                        {m.metadata!.permissions!.paths!.length} Trilha{m.metadata!.permissions!.paths!.length > 1 ? 's' : ''} Disponível{m.metadata!.permissions!.paths!.length > 1 ? 'is' : ''}
+                                     </a>
+                                  )}
+                                  {(m.metadata?.permissions?.assets?.length || 0) > 0 && (
+                                     <div className="px-5 py-3 bg-[#81f3e5]/10 text-[#81f3e5] border border-[#81f3e5]/30 rounded-2xl flex items-center gap-2 font-black text-[9px] uppercase tracking-widest">
+                                        <span className="material-symbols-outlined text-sm">folder</span>
+                                        {m.metadata!.permissions!.assets!.length} Arquivo{m.metadata!.permissions!.assets!.length > 1 ? 's' : ''} Extra{m.metadata!.permissions!.assets!.length > 1 ? 's' : ''}
+                                     </div>
+                                  )}
+                               </>
+                            )}
                          </div>
                       </div>
                    </motion.div>

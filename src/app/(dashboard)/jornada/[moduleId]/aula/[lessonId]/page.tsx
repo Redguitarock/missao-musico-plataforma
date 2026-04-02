@@ -43,6 +43,7 @@ function LessonPageInner(props: { params: Promise<{ moduleId: string, lessonId: 
   const [showNoteModal, setShowNoteModal] = useState(false)
   const [noteContent, setNoteContent] = useState('')
   const [toast, setToast] = useState<{msg: string, type: 'success' | 'error'} | null>(null)
+  const [isFinishing, setIsFinishing] = useState(false)
 
   const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
     setToast({ msg, type })
@@ -205,6 +206,31 @@ function LessonPageInner(props: { params: Promise<{ moduleId: string, lessonId: 
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  const handleFinishLesson = async () => {
+     setIsFinishing(true)
+     const { data: { user } } = await supabase.auth.getUser()
+     
+     if (user) {
+        try {
+           // Triggar motor de cálculo para compilar relatórios.
+           // Assumindo que este Ebook Módulo está atrelado ao usuário ativo.
+           await fetch('/api/diagnostic/calculate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ userId: user.id, moduleId: parseInt(params.moduleId, 10) })
+           })
+        } catch (err) {
+           console.error("Erro ao notificar central de diagnóstico", err)
+        }
+     }
+
+     if (activeMode === 'PROFESSIONAL') {
+        router.push('/jornada?mode=PROFESSIONAL')
+     } else {
+        router.push('/jornada')
+     }
+  }
+
   return (
     <div className="relative max-w-3xl mx-auto pb-24 font-manrope">
       
@@ -268,8 +294,12 @@ function LessonPageInner(props: { params: Promise<{ moduleId: string, lessonId: 
             Próxima Etapa
           </button>
         ) : (
-          <button className="w-full sm:w-auto px-14 py-4 rounded-3xl bg-[#81f3e5] text-[#00151d] font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-[#81f3e5]/20 hover:scale-[1.05] transition-all flex items-center justify-center gap-2">
-            CONCLUIR LIÇÃO
+          <button 
+             onClick={handleFinishLesson}
+             disabled={isFinishing}
+             className="w-full sm:w-auto px-14 py-4 rounded-3xl bg-[#81f3e5] text-[#00151d] font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-[#81f3e5]/20 hover:scale-[1.05] disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+          >
+            {isFinishing ? 'CALCULANDO E LIBERANDO...' : 'CONCLUIR LIÇÃO'}
           </button>
         )}
       </div>

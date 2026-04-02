@@ -88,13 +88,33 @@ export interface IconCardsBlock {
 export interface QuizOption {
   id: string
   label: string
+  text?: string
+  weight_key?: string
+  weight_value?: number
+}
+
+export interface QuizQuestion {
+  id: string
+  type: 'multiple_choice' | 'text'
+  text: string
+  options: QuizOption[]
 }
 
 export interface QuizBlock {
   id: string
   type: 'interactive_quiz'
-  question: string
-  options: QuizOption[]
+  
+  // V2 Fields (Omnichannel / Diagnostic)
+  quiz_id?: string
+  title?: string
+  description?: string
+  category?: string
+  weight_categories?: string[] // e.g. ["Medo", "Ansiedade"]
+  questions?: QuizQuestion[]
+
+  // Legacy fields (optional if V2 is used)
+  question?: string
+  options?: QuizOption[]
 }
 
 export interface CircleItem {

@@ -34,6 +34,11 @@ export default function ConstrutorTrilhasMestre({ user: propUser }: { user?: any
   const [newDesc, setNewDesc] = useState('')
   const [selectedSteps, setSelectedSteps] = useState<Resource[]>([])
 
+  // Modal Distribuição
+  const [distributePath, setDistributePath] = useState<Pathway | null>(null)
+  const [myStudents, setMyStudents] = useState<any[]>([])
+  const [distributing, setDistributing] = useState(false)
+
   // Busca e Filtro
   const [searchTerm, setSearchTerm] = useState('')
   const [filterType, setFilterType] = useState<string | null>(null)
@@ -132,11 +137,12 @@ export default function ConstrutorTrilhasMestre({ user: propUser }: { user?: any
   }
 
   const savePathway = async () => {
-    if (!newTitle || selectedSteps.length === 0 || !propUser?.id) return
+    const activeUserId = propUser?.id || user?.id
+    if (!newTitle || selectedSteps.length === 0 || !activeUserId) return
     setSaving(true)
     
     const payload = {
-       professional_id: propUser.id,
+       professional_id: activeUserId,
        title: newTitle,
        description: newDesc,
        steps: selectedSteps
@@ -177,6 +183,77 @@ export default function ConstrutorTrilhasMestre({ user: propUser }: { user?: any
        }
        setTimeout(() => setToast(null), 3000)
     }
+  }
+
+  const handleOpenDistribution = async (e: React.MouseEvent, path: Pathway) => {
+     e.stopPropagation()
+     setDistributePath(path)
+     setLoading(true)
+     const activeUserId = propUser?.id || user?.id
+     if (activeUserId) {
+        const { data } = await supabase.from('mentorships').select('*, users:student_id(full_name, avatar_url)').eq('professional_id', activeUserId).eq('status', 'ACTIVE')
+        if (data) setMyStudents(data)
+     }
+     setLoading(false)
+  }
+
+  const assignToStudent = async (mentorship: any, isGlobal: boolean = false) => {
+      setDistributing(true)
+      const pathId = distributePath?.id
+      if (!pathId) return
+
+      try {
+         // O modo mais direto é mandar para a API que cuida do log e snapshot
+         if (isGlobal) {
+            // Distribuir para todos os alunos simultaneamente
+            const promises = myStudents.map(async (m) => {
+               const currentPaths = m.metadata?.permissions?.paths || []
+               if (currentPaths.includes(pathId)) return
+               
+               return fetch('/api/mentorias/liberar', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ mentorshipId: m.id, itemId: pathId, itemType: 'PATH' })
+               })
+            })
+            await Promise.all(promises)
+            setToast('Trilha Publicada para Todos os Pacientes Ativos!')
+         } else {
+            const res = await fetch('/api/mentorias/liberar', {
+               method: 'POST',
+               headers: { 'Content-Type': 'application/json' },
+               body: JSON.stringify({ mentorshipId: mentorship.id, itemId: pathId, itemType: 'PATH' })
+            })
+            if (res.ok) {
+               const json = await res.json()
+               
+               // Update local state to reflect new reality (if liberated or revoked)
+               const newPaths = json.isNowLiberated 
+                  ? [...(mentorship.metadata?.permissions?.paths || []), pathId]
+                  : (mentorship.metadata?.permissions?.paths || []).filter((id: string) => id !== pathId)
+               
+               const newMetadata = {
+                  ...mentorship.metadata,
+                  permissions: {
+                     ...(mentorship.metadata?.permissions || {}),
+                     paths: newPaths
+                  }
+               }
+               setMyStudents(prev => prev.map(m => m.id === mentorship.id ? { ...m, metadata: newMetadata } : m))
+               
+               setToast(json.isNowLiberated 
+                  ? `Trilha entregue para ${mentorship.users?.full_name || 'o Aluno'}!` 
+                  : `Acesso da Trilha Revogado para ${mentorship.users?.full_name || 'o Aluno'}! 🚫`)
+            } else {
+               throw new Error('Falha na API central')
+            }
+         }
+      } catch (err) {
+         setToast('Falha na distribuição.')
+      }
+
+      setTimeout(() => setToast(null), 3000)
+      setDistributing(false)
   }
 
   // Lógica de Filtro
@@ -322,9 +399,14 @@ export default function ConstrutorTrilhasMestre({ user: propUser }: { user?: any
                                ))}
                             </div>
                          </div>
-                         <div className="mt-10 pt-8 flex justify-between items-center opacity-30 group-hover:opacity-100 transition-all">
+                         <div className="mt-10 pt-8 flex justify-between items-center opacity-30 group-hover:opacity-100 transition-all border-t border-white/5">
                             <p className="text-[8px] font-black uppercase text-slate-700 tracking-[0.4em] italic mb-0">{t.steps.length} ESTÁGIOS • CLIQUE P/ EDITAR</p>
-                            <span className="material-symbols-outlined text-[#26A69A]">map</span>
+                            <button 
+                              onClick={(e) => handleOpenDistribution(e, t)}
+                              className="bg-[#26A69A]/20 text-[#26A69A] border border-[#26A69A]/30 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-[#26A69A] hover:text-white transition-all shadow-xl"
+                            >
+                               Distribuir
+                            </button>
                          </div>
                       </motion.div>
                    ))}
@@ -338,6 +420,53 @@ export default function ConstrutorTrilhasMestre({ user: propUser }: { user?: any
        </div>
 
        <AnimatePresence>
+        {distributePath && (
+           <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 pb-20">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-black/90 backdrop-blur-xl" onClick={() => setDistributePath(null)} />
+              <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }} className="relative bg-[#0b242e] border border-[#26A69A]/30 w-full max-w-2xl rounded-[3rem] p-10 shadow-2xl flex flex-col max-h-[80vh]">
+                 <div className="flex justify-between items-start mb-8">
+                    <div>
+                       <h3 className="text-2xl font-bold text-white uppercase italic tracking-tighter">Distribuir Trilha</h3>
+                       <p className="text-[#26A69A] font-black uppercase tracking-widest text-[10px] mt-2">{distributePath.title}</p>
+                    </div>
+                    <button onClick={() => setDistributePath(null)} className="text-slate-500 hover:text-white"><span className="material-symbols-outlined">close</span></button>
+                 </div>
+
+                 <button 
+                    onClick={() => assignToStudent(null, true)}
+                    disabled={distributing || myStudents.length === 0}
+                    className="w-full bg-[#26A69A]/20 border border-[#26A69A] text-[#26A69A] hover:bg-[#26A69A] hover:text-white py-4 rounded-2xl font-black uppercase tracking-[0.3em] text-[10px] italic transition-all mb-8 disabled:opacity-50"
+                 >
+                    PUBLICAR PARA TODOS OS PACIENTES ATIVOS 🌐
+                 </button>
+
+                 <p className="text-slate-500 font-black uppercase tracking-widest text-[9px] mb-4">Ou atribua individualmente:</p>
+                 
+                 <div className="flex-1 overflow-y-auto custom-scrollbar space-y-3 pr-2">
+                    {myStudents.map(m => {
+                       const hasPath = m.metadata?.permissions?.paths?.includes(distributePath.id)
+                       return (
+                          <div key={m.id} className="flex items-center justify-between p-4 bg-black/20 border border-white/5 rounded-2xl">
+                             <div className="flex items-center gap-4">
+                                <img src={m.users?.avatar_url || 'https://images.unsplash.com/photo-1541913057-047b71501d24?q=80&w=700'} className="w-10 h-10 rounded-full object-cover border border-white/10" />
+                                <span className="text-white font-bold text-xs uppercase uppercase italic">{m.users?.full_name}</span>
+                             </div>
+                             <button 
+                               onClick={() => assignToStudent(m, false)}
+                               disabled={distributing || hasPath}
+                               className={`px-4 py-2 rounded-xl border text-[9px] font-black uppercase tracking-widest transition-all ${hasPath ? 'bg-white/5 text-slate-500 border-white/5' : 'bg-[#00151d] text-[#81f3e5] border-[#81f3e5]/30 hover:bg-[#81f3e5] hover:text-[#00151d]'}`}
+                             >
+                                {hasPath ? 'Recebido' : 'Entregar Rota'}
+                             </button>
+                          </div>
+                       )
+                    })}
+                    {myStudents.length === 0 && <p className="text-center text-slate-500 text-[10px] font-black uppercase tracking-[0.4em] p-10">Nenhum paciente aliado no momento.</p>}
+                 </div>
+              </motion.div>
+           </div>
+        )}
+
         {toast && (
           <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }} className="fixed bottom-12 left-1/2 -translate-x-1/2 z-[300] px-14 py-7 bg-[#0b242e] border border-[#26A69A]/40 rounded-full shadow-2xl flex items-center gap-6 backdrop-blur-2xl">
              <div className="w-5 h-5 rounded-full bg-[#26A69A] animate-ping" />

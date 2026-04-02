@@ -435,7 +435,11 @@ export default function EbookBuilder({ user: propUser }: { user?: any }) {
                   const def = BLOCK_DEF_MAP[block.type]
                   return (
                     <div key={block.id}
-                      onClick={() => setSelectedBlockId(isSelected ? null : block.id)}
+                      onClick={(e) => {
+                         if (!isSelected) {
+                            setSelectedBlockId(block.id);
+                         }
+                      }}
                       className={`rounded-2xl border transition-all cursor-pointer ${
                         isSelected ? 'border-[#81f3e5]/40' : 'border-white/5'
                       } relative group`}>
@@ -445,7 +449,10 @@ export default function EbookBuilder({ user: propUser }: { user?: any }) {
                       {isSelected && (
                         <div className="p-4 bg-[#0b1f28] rounded-b-2xl">
                           <BlockEditor block={block} onChange={updateBlock} />
-                          <button onClick={() => removeBlock(block.id)} className="text-red-500 mt-4 text-xs font-bold">REMOVER BLOCO</button>
+                          <div className="flex gap-4 mt-4">
+                             <button onClick={(e) => { e.stopPropagation(); setSelectedBlockId(null); }} className="text-[#81f3e5] text-xs font-bold uppercase tracking-widest px-4 py-2 border border-[#81f3e5]/20 rounded-lg hover:bg-[#81f3e5]/10">FECHAR EDIÇÃO</button>
+                             <button onClick={(e) => { e.stopPropagation(); removeBlock(block.id); }} className="text-red-500 text-xs font-bold uppercase tracking-widest px-4 py-2 hover:bg-red-500/10 rounded-lg">REMOVER BLOCO</button>
+                          </div>
                         </div>
                       )}
                     </div>

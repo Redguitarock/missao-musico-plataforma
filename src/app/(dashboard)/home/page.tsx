@@ -168,22 +168,24 @@ export default async function HomePage() {
               return (
                 <Wrapper 
                   {...linkProps}
-                  key={res.id || `rec-${i}`} 
+                  key={`rec-${i}-${res.id || 'fallback'}`} 
                   className="bg-[#0b242e] rounded-[3rem] overflow-hidden hover:-translate-y-2 transition-all cursor-pointer shadow-2xl border border-white/5 group relative h-96 flex flex-col justify-end text-left"
                 >
-                  <div className="absolute inset-0 overflow-hidden">
-                    <div className="w-full h-full bg-gradient-to-br from-[#26A69A]/20 to-[#0b242e] opacity-40 group-hover:opacity-60 transition-opacity" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0b242e] via-[#0b242e]/60 to-transparent" />
-                  </div>
-                  <div className="p-8 relative z-10">
-                    <div className="flex items-center gap-3 mb-4">
-                      <span className="material-symbols-outlined text-[#81f3e5] text-xl">
-                        {res.type === 'PDF' ? 'description' : res.type === 'VIDEO' ? 'smart_display' : 'headphones'}
-                      </span>
-                      <span className="text-[9px] font-black uppercase tracking-widest text-[#81f3e5]/70 italic">{res.category || 'Recomendado'}</span>
+                  <div className="contents">
+                    <div className="absolute inset-0 overflow-hidden">
+                      <div className="w-full h-full bg-gradient-to-br from-[#26A69A]/20 to-[#0b242e] opacity-40 group-hover:opacity-60 transition-opacity" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#0b242e] via-[#0b242e]/60 to-transparent" />
                     </div>
-                    <h5 className="font-bold text-2xl mb-1 text-white uppercase italic tracking-tighter leading-tight line-clamp-2">{res.title}</h5>
-                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-2">{res.description || 'Conteúdo de alta frequência selecionado para você.'}</p>
+                    <div className="p-8 relative z-10">
+                      <div className="flex items-center gap-3 mb-4">
+                        <span className="material-symbols-outlined text-[#81f3e5] text-xl">
+                          {res.type === 'PDF' ? 'description' : res.type === 'VIDEO' ? 'smart_display' : 'headphones'}
+                        </span>
+                        <span className="text-[9px] font-black uppercase tracking-widest text-[#81f3e5]/70 italic">{res.category || 'Recomendado'}</span>
+                      </div>
+                      <h5 className="font-bold text-2xl mb-1 text-white uppercase italic tracking-tighter leading-tight line-clamp-2">{res.title}</h5>
+                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-2">{res.description || 'Conteúdo de alta frequência selecionado para você.'}</p>
+                    </div>
                   </div>
                 </Wrapper>
               )
