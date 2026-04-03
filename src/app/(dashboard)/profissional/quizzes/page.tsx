@@ -84,7 +84,7 @@ export default function EstudioQuizzesPage({ user: propUser }: { user?: any }) {
     
     const sortedQuestions = [...(quiz.questions || [])].sort((a: any, b: any) => a.order_index - b.order_index)
     
-    const mapped = sortedQuestions.map((q: any) => ({
+    const mapped: Question[] = sortedQuestions.map((q: any) => ({
       id: q.id,
       type: q.type === 'multiple_choice' ? 'MULTIPLE' : 'DESCRIPTIVE',
       text: q.text,
